@@ -1,0 +1,128 @@
+@startuml
+' Pakiety
+package fais.zti.oramus.gomoku {
+    interface Game {
+        + start()
+        + nextMove(Move)
+        + getCurrentPlayer(): Mark
+        + getWinner(): Mark
+        + getBoard(): Board
+    }
+
+    enum Mark {
+        + X
+        + O
+    }
+    entity Position {
+        + x: int
+        + y: int
+    }
+    entity Move {
+        + position: Position
+        + mark: Mark
+    }
+    exception ResignException {}
+    exception WrongBoardStateException {}
+    exception TeWinnerIsException {
+        + TeWinnerIsException(Mark)
+    }
+
+
+}
+  class Gomoku {
+    + firstMark(Mark)
+    + size(int)
+    + periodicBoundaryConditionsInUse(boolean)
+    + nextMove(Set<Move>, Mark)
+  }
+
+package gomoku.config {
+  class BoardConfig {
+    + getInstance()
+    + isPeriodic()
+    + getSize()
+    + isWinImmediatelyEnabled()
+    + isBlockOpponentEnabled()
+    + isForkCreationEnabled()
+  }
+  class StrategyFactory {
+    + createHandlerChain(BoardConfig)
+  }
+}
+
+package gomoku.adapter {
+  class BoardAdapter {
+    + BoardAdapter(Set<Move>, BoardConfig)
+    + toBoard(): Board
+  }
+}
+
+package gomoku.builder {
+  class BoardBuilder {
+    + size(int)
+    + periodic(boolean)
+    + build(): Board
+  }
+}
+
+package gomoku.domain {
+  class Board {
+    + getEmptyPositions(): List<Position>
+    + placeMark(Position, Mark)
+    + isWinningMove(Position, Mark)
+    + clone(): Board
+  }
+  class Position
+  class Move
+  class Mark
+}
+
+package gomoku.chain {
+  abstract class MoveHandler {
+    + handle(Board, Mark): Optional<Move)
+    {abstract} + doHandle(Board, Mark): Optional<Move)
+  }
+  class StrategyHandler
+  class DefaultHandler
+}
+
+package gomoku.strategy {
+  interface MoveStrategy {
+    + findMove(Board, Mark): Optional<Move)
+  }
+  class WinImmediatelyStrategy
+  class BlockOpponentStrategy
+  class CreateForkStrategy
+}
+
+' Relacje
+Gomoku <|.. Game
+Gomoku --> StrategyFactory        : uses
+Gomoku --> BoardAdapter           : adapts raw moves
+Gomoku --> BoardConfig
+
+BoardAdapter --> BoardBuilder     : constructs Boards
+BoardAdapter --> BoardConfig
+BoardAdapter --> Board
+
+BoardBuilder --> Board
+
+StrategyFactory --> MoveHandler
+
+MoveHandler <|-- StrategyHandler
+MoveHandler <|-- DefaultHandler
+
+StrategyHandler --> MoveStrategy
+WinImmediatelyStrategy --|> MoveStrategy
+BlockOpponentStrategy --|> MoveStrategy
+CreateForkStrategy --|> MoveStrategy
+
+WinImmediatelyStrategy --> Board
+BlockOpponentStrategy --> Board
+CreateForkStrategy --> Board
+
+BoardConfig --> StrategyFactory
+
+Gomoku --> MoveHandler            : head of chain
+
+@enduml
