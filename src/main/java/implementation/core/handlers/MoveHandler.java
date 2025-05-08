@@ -9,9 +9,6 @@ import implementation.core.Board;
 
 import java.util.Optional;
 
-/**
- * Abstract handler implementing the Template Method for move computation and chaining.
- */
 public abstract class MoveHandler {
     private final MoveHandler next;
 
@@ -19,9 +16,6 @@ public abstract class MoveHandler {
         this.next = next;
     }
 
-    /**
-     * Template method: delegates to subclass, or passes to next.
-     */
     public final Optional<Move> handle(Board board, Mark mark) throws TheWinnerIsException, ResignException {
 
         Optional<Move> result = doHandle(board, mark);
@@ -34,9 +28,7 @@ public abstract class MoveHandler {
         return Optional.empty();
     }
 
-    /**
-     * Concrete handlers implementing this to propose a move or return empty.
-     */
+
     protected abstract Optional<Move> doHandle(Board board, Mark mark) throws TheWinnerIsException, ResignException;
 }
 

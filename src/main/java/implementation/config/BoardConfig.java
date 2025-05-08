@@ -7,8 +7,7 @@ public class BoardConfig {
     public static final int MAX_SIZE = 15;
     public static final int MIN_SIZE = 10;
 
-    // Board default parameters
-    private int size = 15;
+    private int size = 10;
     private boolean periodic = false;
     private Mark firstMark;
 

@@ -11,9 +11,6 @@ public class Board implements Cloneable {
     private final boolean periodic;
     private final Mark[][] grid;
 
-    /**
-     * Initializes an empty board with given size and boundary mode.
-     */
     public Board(int size, boolean periodic) {
         this.size = size;
         this.periodic = periodic;
@@ -26,9 +23,6 @@ public class Board implements Cloneable {
         }
     }
 
-    /**
-     * Returns all positions on the board that are currently empty.
-     */
     public List<Position> getEmptyPositions() {
         List<Position> empties = new ArrayList<>();
         for (int i = 0; i < size; i++) {
@@ -41,16 +35,11 @@ public class Board implements Cloneable {
         return empties;
     }
 
-    /**
-     * Places a mark at the given position.
-     */
     public void placeMark(Position pos, Mark mark) {
         grid[pos.row()][pos.col()] = mark;
     }
 
-    /**
-     * Checks whether placing 'mark' at 'pos' would create a five-in-a-row.
-     */
+
     public boolean isWinningMove(Position pos, Mark mark) {
         int[][] directions = {{1, 0}, {0, 1}, {1, 1}, {1, -1}};
 
@@ -83,9 +72,6 @@ public class Board implements Cloneable {
         return false;
     }
 
-    /**
-     * Counts consecutive marks from 'pos' in direction (dx,dy).
-     */
     private int countDirection(Position pos, Mark mark, int dx, int dy) {
         int r = pos.row();
         int c = pos.col();

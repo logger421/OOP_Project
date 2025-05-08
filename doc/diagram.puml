@@ -1,128 +1,78 @@
 @startuml
-' Pakiety
-package fais.zti.oramus.gomoku {
-    interface Game {
-        + start()
-        + nextMove(Move)
-        + getCurrentPlayer(): Mark
-        + getWinner(): Mark
-        + getBoard(): Board
-    }
-
-    enum Mark {
-        + X
-        + O
-    }
-    entity Position {
-        + x: int
-        + y: int
-    }
-    entity Move {
-        + position: Position
-        + mark: Mark
-    }
-    exception ResignException {}
-    exception WrongBoardStateException {}
-    exception TeWinnerIsException {
-        + TeWinnerIsException(Mark)
-    }
-
-
-}
-  class Gomoku {
-    + firstMark(Mark)
-    + size(int)
-    + periodicBoundaryConditionsInUse(boolean)
-    + nextMove(Set<Move>, Mark)
-  }
-
-package gomoku.config {
-  class BoardConfig {
-    + getInstance()
-    + isPeriodic()
-    + getSize()
-    + isWinImmediatelyEnabled()
-    + isBlockOpponentEnabled()
-    + isForkCreationEnabled()
-  }
-  class StrategyFactory {
-    + createHandlerChain(BoardConfig)
-  }
+skinparam defaultFontSize 13
+skinparam backgroundColor #IVORY
+skinparam class {
+  BackgroundColor #LIGHTBLUE
+  ArrowColor #BLACK
+  BorderColor #BLACK
+  FontSize 15
 }
 
-package gomoku.adapter {
-  class BoardAdapter {
-    + BoardAdapter(Set<Move>, BoardConfig)
-    + toBoard(): Board
-  }
+class Gomoku {
+  - boardConfig: BoardConfig
+  - chain: MoveHandler
+  + firstMark(Mark)
+  + size(int)
+  + periodicBoundaryConditionsInUse(boolean)
+  + nextMove(Set<Move>, Mark)
 }
 
-package gomoku.builder {
-  class BoardBuilder {
-    + size(int)
-    + periodic(boolean)
-    + build(): Board
-  }
+class BoardConfig {
+  + getInstance()
+  + getSize()
+  + isPeriodic()
+  + isWinImmediatelyEnabled()
+  + isBlockOpponentEnabled()
+  + isForkCreationEnabled()
 }
 
-package gomoku.domain {
-  class Board {
-    + getEmptyPositions(): List<Position>
-    + placeMark(Position, Mark)
-    + isWinningMove(Position, Mark)
-    + clone(): Board
-  }
-  class Position
-  class Move
-  class Mark
+class BoardAdapter {
+  + BoardAdapter(Set<Move>, BoardConfig)
+  + toBoard(): Board
 }
 
-package gomoku.chain {
-  abstract class MoveHandler {
-    + handle(Board, Mark): Optional<Move)
-    {abstract} + doHandle(Board, Mark): Optional<Move)
-  }
-  class StrategyHandler
-  class DefaultHandler
+class Board {
+  + getEmptyPositions()
+  + placeMark(...)
+  + isWinningMove(...)
+  + clone()
 }
 
-package gomoku.strategy {
-  interface MoveStrategy {
-    + findMove(Board, Mark): Optional<Move)
-  }
-  class WinImmediatelyStrategy
-  class BlockOpponentStrategy
-  class CreateForkStrategy
+interface MoveStrategy {
+  + findMove(Board, Mark)
 }
 
-' Relacje
-Gomoku <|.. Game
-Gomoku --> StrategyFactory        : uses
-Gomoku --> BoardAdapter           : adapts raw moves
-Gomoku --> BoardConfig
+abstract class MoveHandler {
+  + handle(Board, Mark)
+  # doHandle(Board, Mark)
+}
 
-BoardAdapter --> BoardBuilder     : constructs Boards
-BoardAdapter --> BoardConfig
+class HandlerChainBuilder {
+  + addWinnerCheck()
+  + addStrategy(MoveStrategy)
+  + addResignCheck()
+  + addDefault()
+  + build(): MoveHandler
+}
+
+class WinnerCheckHandler extends MoveHandler
+class StrategyHandler extends MoveHandler
+class ResignHandler extends MoveHandler
+class DefaultHandler extends MoveHandler
+
+class WinImmediatelyStrategy implements MoveStrategy
+class BlockOpponentStrategy implements MoveStrategy
+class CreateForkStrategy implements MoveStrategy
+
+Gomoku o-- BoardConfig
+Gomoku o-- HandlerChainBuilder
+
+Gomoku ..> BoardAdapter
 BoardAdapter --> Board
+BoardAdapter ..> BoardConfig
 
-BoardBuilder --> Board
+HandlerChainBuilder *-- MoveHandler
 
-StrategyFactory --> MoveHandler
-
-MoveHandler <|-- StrategyHandler
-MoveHandler <|-- DefaultHandler
-
-StrategyHandler --> MoveStrategy
-WinImmediatelyStrategy --|> MoveStrategy
-BlockOpponentStrategy --|> MoveStrategy
-CreateForkStrategy --|> MoveStrategy
-
-WinImmediatelyStrategy --> Board
-BlockOpponentStrategy --> Board
-CreateForkStrategy --> Board
-
-BoardConfig --> StrategyFactory
-
-Gomoku --> MoveHandler            : head of chain
+StrategyHandler *-- MoveStrategy
 
 @enduml

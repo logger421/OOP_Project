@@ -15,17 +15,14 @@ public class ResignHandler extends MoveHandler {
 
     @Override
     protected Optional<Move> doHandle(Board board, Mark mark) throws ResignException {
-        // Determine the opponent's mark
         Mark opponent = (mark == Mark.CROSS) ? Mark.NOUGHT : Mark.CROSS;
         Board simulated = board.clone();
 
         Optional<Move> move = new WinImmediatelyStrategy().findMove(simulated, opponent);
 
-        // If the opponent can win immediately, throw a ResignException
         if (move.isPresent()) {
             throw new ResignException();
         }
-        // Otherwise, return empty to continue the chain
         return Optional.empty();
     }
 
