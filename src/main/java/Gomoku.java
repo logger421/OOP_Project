@@ -1,9 +1,12 @@
 import fais.zti.oramus.gomoku.*;
-import gomoku.adapter.BoardAdapter;
-import gomoku.chain.MoveHandler;
-import gomoku.config.BoardConfig;
-import gomoku.config.StrategyFactory;
-import gomoku.domain.Board;
+import implementation.config.BoardConfig;
+import implementation.core.Board;
+import implementation.core.BoardAdapter;
+import implementation.core.HandlerChainBuilder;
+import implementation.core.handlers.MoveHandler;
+import implementation.core.moves.BlockOpponentStrategy;
+import implementation.core.moves.CreateForkStrategy;
+import implementation.core.moves.WinImmediatelyStrategy;
 
 import java.util.Optional;
 import java.util.Set;
@@ -14,17 +17,23 @@ public class Gomoku implements Game {
 
     public Gomoku() {
         this.config = BoardConfig.getInstance();
-        this.handlerChain = StrategyFactory.createHandlerChain(config);
+        this.handlerChain = new HandlerChainBuilder()
+                .addWinnerCheck()
+                .addStrategy(new WinImmediatelyStrategy())
+                .addStrategy(new BlockOpponentStrategy())
+                .addResignCheck()
+                .addStrategy(new CreateForkStrategy())
+                .addDefault()
+                .build();
     }
 
     @Override
     public void firstMark(Mark mark) {
-        // optional: store the initial mark
+        config.setFirstMark(mark);
     }
 
     @Override
     public void size(int size) {
-        // configure board size dynamically if needed
         config.setSize(size);
     }
 
@@ -36,14 +45,8 @@ public class Gomoku implements Game {
     @Override
     public Move nextMove(Set<Move> previousMoves, Mark myMark)
             throws WrongBoardStateException, TheWinnerIsException, ResignException {
-        // 1. Validate board state (omitted for brevity)
-
-        // 2. Adapt raw moves to our Board model
         Board board = new BoardAdapter(previousMoves, config).toBoard();
-
-        // 3. Delegate move computation to chain of responsibility
         Optional<Move> opt = handlerChain.handle(board, myMark);
-
         return opt.orElseThrow(ResignException::new);
     }
 }

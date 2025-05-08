@@ -1,9 +1,9 @@
-package gomoku.strategy;
+package implementation.core.moves;
 
 import fais.zti.oramus.gomoku.Mark;
 import fais.zti.oramus.gomoku.Move;
 import fais.zti.oramus.gomoku.Position;
-import gomoku.domain.Board;
+import implementation.core.Board;
 
 import java.util.Optional;
 

@@ -1,4 +1,4 @@
-package gomoku.domain;
+package implementation.core;
 
 import fais.zti.oramus.gomoku.Mark;
 import fais.zti.oramus.gomoku.Position;
@@ -18,6 +18,7 @@ public class Board implements Cloneable {
         this.size = size;
         this.periodic = periodic;
         this.grid = new Mark[size][size];
+
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 grid[i][j] = Mark.NULL;
@@ -51,13 +52,32 @@ public class Board implements Cloneable {
      * Checks whether placing 'mark' at 'pos' would create a five-in-a-row.
      */
     public boolean isWinningMove(Position pos, Mark mark) {
-        int[][] directions = {{1,0},{0,1},{1,1},{1,-1}};
+        int[][] directions = {{1, 0}, {0, 1}, {1, 1}, {1, -1}};
+
         for (int[] d : directions) {
-            int count = 1; // count this position
+            int count = 1;
             count += countDirection(pos, mark, d[0], d[1]);
             count += countDirection(pos, mark, -d[0], -d[1]);
-            if (count >= 5) {
-                return true;
+
+            if (count >= 5) return true;
+        }
+        return false;
+    }
+
+    public boolean hasAlreadyWon(Mark m) {
+        int[][] directions = {{1, 0}, {0, 1}, {1, 1}, {1, -1}};
+
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                if (grid[i][j] == m) {
+                    for (int[] d : directions) {
+                        int count = 1;
+                        count += countDirection(new Position(i, j), m, d[0], d[1]);
+                        count += countDirection(new Position(i, j), m, -d[0], -d[1]);
+
+                        if (count >= 5) return true;
+                    }
+                }
             }
         }
         return false;
@@ -70,6 +90,7 @@ public class Board implements Cloneable {
         int r = pos.row();
         int c = pos.col();
         int cnt = 0;
+
         while (true) {
             r += dx;
             c += dy;
@@ -82,6 +103,7 @@ public class Board implements Cloneable {
             if (grid[r][c] == mark) cnt++;
             else break;
         }
+
         return cnt;
     }
 

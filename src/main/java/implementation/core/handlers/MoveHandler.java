@@ -1,9 +1,11 @@
-package gomoku.chain;
+package implementation.core.handlers;
 
 
 import fais.zti.oramus.gomoku.Mark;
 import fais.zti.oramus.gomoku.Move;
-import gomoku.domain.Board;
+import fais.zti.oramus.gomoku.ResignException;
+import fais.zti.oramus.gomoku.TheWinnerIsException;
+import implementation.core.Board;
 
 import java.util.Optional;
 
@@ -18,10 +20,10 @@ public abstract class MoveHandler {
     }
 
     /**
-     * Template method: logs, delegates to subclass, or passes to next.
+     * Template method: delegates to subclass, or passes to next.
      */
-    public final Optional<Move> handle(Board board, Mark mark) {
-        preHandle(board, mark);
+    public final Optional<Move> handle(Board board, Mark mark) throws TheWinnerIsException, ResignException {
+
         Optional<Move> result = doHandle(board, mark);
         if (result.isPresent()) {
             return result;
@@ -33,15 +35,8 @@ public abstract class MoveHandler {
     }
 
     /**
-     * Hook for logging/timing before actual handling.
+     * Concrete handlers implementing this to propose a move or return empty.
      */
-    protected void preHandle(Board board, Mark mark) {
-        // e.g., logging or performance metrics
-    }
-
-    /**
-     * Concrete handlers implement this to propose a move or return empty.
-     */
-    protected abstract Optional<Move> doHandle(Board board, Mark mark);
+    protected abstract Optional<Move> doHandle(Board board, Mark mark) throws TheWinnerIsException, ResignException;
 }
 
