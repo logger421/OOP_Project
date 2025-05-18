@@ -10,7 +10,7 @@ public class HandlerChainBuilder {
     private final List<HandlerFactory> steps = new ArrayList<>();
 
     public HandlerChainBuilder addWinnerCheck() {
-        steps.add(next -> new WinnerCheckHandler(next));
+        steps.add(WinnerCheckHandler::new);
         return this;
     }
 
@@ -33,7 +33,7 @@ public class HandlerChainBuilder {
     }
 
     public HandlerChainBuilder addResignCheck() {
-        steps.add(next -> new ResignHandler(next));
+        steps.add(ResignHandler::new);
         return this;
     }
 

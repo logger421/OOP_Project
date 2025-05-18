@@ -101,5 +101,9 @@ public class Board implements Cloneable {
         }
         return copy;
     }
+
+    public Mark getMarkAt(int r, int c) {
+        return grid[r][c];
+    }
 }
 

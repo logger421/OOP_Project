@@ -18,6 +18,7 @@ public class GomokuTest {
         history = new HashSet<>();
         engine = new Gomoku();
         engine.size(10);
+        engine.firstMark(Mark.CROSS);
     }
 
     @Test
@@ -52,7 +53,6 @@ public class GomokuTest {
 
     @Test
     void testTheWinnerIsExceptionOnImmediateBoard() {
-
         history.add(new Move(new Position(0, 0), Mark.CROSS));
         history.add(new Move(new Position(0, 1), Mark.CROSS));
         history.add(new Move(new Position(0, 2), Mark.CROSS));
@@ -88,36 +88,46 @@ public class GomokuTest {
 
     @Test
     void testCreateForkStrategy() throws Exception {
-        // ustaw trzy w linii dla X, np. (1,0),(1,1),(1,3) z dziurą w środku i miejsce na drugą linię
+        // Poziomo: X w (1,0), (1,1) i (1,3) – dziura na (1,2)
         history.add(new Move(new Position(1, 0), Mark.CROSS));
         history.add(new Move(new Position(1, 1), Mark.CROSS));
         history.add(new Move(new Position(1, 3), Mark.CROSS));
-        
-        // przeciwnik gdzie indziej
+
+        // Pionowo: X w (0,2), (2,2) i (3,2) – dziura na (1,2)
+        history.add(new Move(new Position(0, 2), Mark.CROSS));
+        history.add(new Move(new Position(2, 2), Mark.CROSS));
+        history.add(new Move(new Position(3, 2), Mark.CROSS));
+
+        // Dodajemy parę ruchów przeciwnika gdzie indziej, by nie przeszkadzał
         history.add(new Move(new Position(5, 0), Mark.NOUGHT));
         history.add(new Move(new Position(5, 1), Mark.NOUGHT));
+        history.add(new Move(new Position(4, 2), Mark.NOUGHT));
         history.add(new Move(new Position(5, 3), Mark.NOUGHT));
+        history.add(new Move(new Position(4, 4), Mark.NOUGHT));
+        history.add(new Move(new Position(5, 5), Mark.NOUGHT));
 
-        // w takiej sytuacji CreateFork powinien zasymulować ruch X na (1,2),
-        // bo po nim będzie zagrożenie 5-w-linii w poziomie i np. pionie
+        // Teraz CreateForkStrategy powinien wybrać (1,2):
+        //  • pozioma linia: (1,0),(1,1),(1,2),(1,3) – 4 w linii
+        //  • pionowa linia:  (0,2),(1,2),(2,2),(3,2) – 4 w linii
+
         Move next = engine.nextMove(history, Mark.CROSS);
 
-        assertEquals(new Position(1, 2), next.position(), "Strategia CreateFork powinna wskazać (1,2)");
+        assertEquals(new Position(1, 2), next.position(), "CreateFork powinien wskazać (1,2)");
         assertEquals(Mark.CROSS, next.mark());
     }
 
+
     @Test
     void testResignWhenNoMoves() {
-        history.add(new Move(new Position(0, 0), Mark.CROSS));
         history.add(new Move(new Position(0, 1), Mark.CROSS));
         history.add(new Move(new Position(0, 2), Mark.CROSS));
         history.add(new Move(new Position(0, 3), Mark.CROSS));
+        history.add(new Move(new Position(0, 4), Mark.CROSS));
 
-        history.add(new Move(new Position(2, 0), Mark.NOUGHT));
+        history.add(new Move(new Position(2, 4), Mark.NOUGHT));
         history.add(new Move(new Position(1, 1), Mark.NOUGHT));
         history.add(new Move(new Position(1, 2), Mark.NOUGHT));
         history.add(new Move(new Position(2, 3), Mark.NOUGHT));
-
 
         assertThrows(ResignException.class, () -> engine.nextMove(history, Mark.NOUGHT));
     }

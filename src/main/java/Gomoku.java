@@ -19,9 +19,9 @@ public class Gomoku implements Game {
         this.config = BoardConfig.getInstance();
         this.handlerChain = new HandlerChainBuilder()
                 .addWinnerCheck()
+                .addResignCheck()
                 .addStrategy(new WinImmediatelyStrategy())
                 .addStrategy(new BlockOpponentStrategy())
-                .addResignCheck()
                 .addStrategy(new CreateForkStrategy())
                 .addDefault()
                 .build();
