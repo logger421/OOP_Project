@@ -200,7 +200,7 @@ public class GomokuTest {
         history.add(new Move(new Position(6, 6), Mark.NOUGHT));
         history.add(new Move(new Position(7, 5), Mark.NOUGHT));
 
-        assertEquals(new Move(new Position(2, 6), Mark.CROSS),  engine.nextMove(history, Mark.CROSS));
+        assertEquals(new Move(new Position(2, 6), Mark.CROSS), engine.nextMove(history, Mark.CROSS));
     }
 
     @Test
@@ -255,5 +255,47 @@ public class GomokuTest {
         history.add(new Move(new Position(7, 7), Mark.NOUGHT));
 
         assertThrows(ResignException.class, () -> engine.nextMove(history, Mark.CROSS));
+    }
+
+    // Test for the periodic boundary conditions
+    @Test
+    void testPeriodicBoundaryConditions() throws TheWinnerIsException, ResignException, WrongBoardStateException {
+        engine.firstMark(Mark.CROSS);
+        engine.size(10);
+        engine.periodicBoundaryConditionsInUse();
+
+        history = new HashSet<>();
+        history.add(new Move(new Position(0, 9), Mark.CROSS));
+        history.add(new Move(new Position(0, 1), Mark.CROSS));
+        history.add(new Move(new Position(0, 2), Mark.CROSS));
+        history.add(new Move(new Position(0, 3), Mark.CROSS));
+
+        history.add(new Move(new Position(2, 4), Mark.NOUGHT));
+        history.add(new Move(new Position(1, 1), Mark.NOUGHT));
+        history.add(new Move(new Position(1, 2), Mark.NOUGHT));
+        history.add(new Move(new Position(2, 3), Mark.NOUGHT));
+
+        assertEquals(new Move(new Position(0, 0), Mark.CROSS), engine.nextMove(history, Mark.CROSS));
+    }
+
+    @Test
+    void testPeriodicBoundaryConditionsTheWInnerIsException() {
+        engine.firstMark(Mark.CROSS);
+        engine.size(10);
+        engine.periodicBoundaryConditionsInUse();
+
+        history = new HashSet<>();
+        history.add(new Move(new Position(0, 9), Mark.CROSS));
+        history.add(new Move(new Position(0, 0), Mark.CROSS));
+        history.add(new Move(new Position(0, 1), Mark.CROSS));
+        history.add(new Move(new Position(0, 2), Mark.CROSS));
+        history.add(new Move(new Position(0, 3), Mark.CROSS));
+
+        history.add(new Move(new Position(2, 4), Mark.NOUGHT));
+        history.add(new Move(new Position(1, 1), Mark.NOUGHT));
+        history.add(new Move(new Position(1, 2), Mark.NOUGHT));
+        history.add(new Move(new Position(2, 3), Mark.NOUGHT));
+
+        assertThrows(TheWinnerIsException.class, () -> engine.nextMove(history, Mark.CROSS));
     }
 }
