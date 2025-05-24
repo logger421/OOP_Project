@@ -60,6 +60,12 @@ public class Board implements Cloneable {
     }
 
     public void placeMark(Position pos, Mark mark) {
+        if (!isInside(pos.row(), pos.col())) {
+            throw new IndexOutOfBoundsException("Outside board: " + pos.row() + "," + pos.col());
+        }
+        if (periodic) {
+            pos = new Position((pos.row() + size) % size, (pos.col() + size) % size);
+        }
         grid[pos.row()][pos.col()] = mark;
     }
 
@@ -138,7 +144,7 @@ public class Board implements Cloneable {
         sb.append("\n");
 
         sb.append(" ".repeat(rowNumWidth)).append("+");
-        sb.append("--".repeat(Math.max(0, size))); // Two dashes per cell
+        sb.append("--".repeat(Math.max(0, size)));
         sb.append("+\n");
 
         for (int i = 0; i < size; i++) {
@@ -151,12 +157,10 @@ public class Board implements Cloneable {
             sb.append("|\n");
         }
 
-        // Bottom border
         sb.append(" ".repeat(rowNumWidth)).append("+");
-        sb.append("--".repeat(Math.max(0, size))); // Two dashes per cell
+        sb.append("--".repeat(Math.max(0, size)));
         sb.append("+\n");
 
-        // Add a legend for larger boards
         if (size > 10) {
             sb.append("Note: Column numbers shown are modulo 10\n");
         }
