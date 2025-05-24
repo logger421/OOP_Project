@@ -31,9 +31,6 @@ public class Board implements Cloneable {
     }
 
     public Mark getMarkAt(int row, int col) {
-        if (!isInside(row, col)) {
-            throw new IndexOutOfBoundsException("Outside board: Position[" + col + "," + row + "]");
-        }
         if (periodic) {
             row = (row + size) % size;
             col = (col + size) % size;
@@ -54,8 +51,6 @@ public class Board implements Cloneable {
     }
 
     public void placeMark(Position pos, Mark mark) {
-        if (!isInside(pos.row(), pos.col()))
-            throw new IndexOutOfBoundsException("Outside board: Position[" + pos.col() + "," + pos.row() + "]");
         if (periodic)
             pos = new Position((pos.col() + size) % size, (pos.row() + size) % size);
         grid[pos.col()][pos.row()] = mark;
