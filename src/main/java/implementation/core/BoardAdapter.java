@@ -20,10 +20,18 @@ public class BoardAdapter {
 
     public Board toBoard() throws WrongBoardStateException {
         validateBoardState(this.rawMoves);
+
         Board board = new Board(config.getSize(), config.isPeriodic());
         for (Move mv : rawMoves) {
             board.placeMark(mv.position(), mv.mark());
         }
+
+        int xWins = countWinningLines(board, Mark.CROSS);
+        int oWins = countWinningLines(board, Mark.NOUGHT);
+        if (xWins + oWins > 1) {
+            throw new WrongBoardStateException();
+        }
+
         return board;
     }
 
@@ -55,5 +63,32 @@ public class BoardAdapter {
         if (Math.abs(countX - countO) > 1) {
             throw new WrongBoardStateException();
         }
+    }
+
+    private int countWinningLines(Board board, Mark mark) {
+        int[][] dirs = {{1, 0}, {0, 1}, {1, 1}, {1, -1}};
+        int lines = 0;
+        for (int r = 0; r < board.getSize(); r++) {
+            for (int c = 0; c < board.getSize(); c++) {
+                if (board.getMarkAt(r, c) != mark) continue;
+                for (int[] d : dirs) {
+                    int pr = r - d[0], pc = c - d[1];
+
+                    if (board.isInside(pr, pc) && board.getMarkAt(pr, pc) == mark)
+                        continue;
+
+                    int len = 0, rr = r, cc = c;
+                    while (board.isInside(rr, cc) && board.getMarkAt(rr, cc) == mark) {
+                        len++;
+                        rr += d[0];
+                        cc += d[1];
+                    }
+
+                    if (len >= 5)
+                        lines++;
+                }
+            }
+        }
+        return lines;
     }
 }

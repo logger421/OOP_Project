@@ -23,6 +23,30 @@ public class Board implements Cloneable {
         }
     }
 
+
+    public int getSize() {
+        return size;
+    }
+
+    public boolean isInside(int row, int col) {
+        if (periodic) {
+            return true;
+        }
+        return row >= 0 && row < size
+                && col >= 0 && col < size;
+    }
+
+    public Mark getMarkAt(int r, int c) {
+        if (!isInside(r, c)) {
+            throw new IndexOutOfBoundsException("Outside board: " + r + "," + c);
+        }
+        if (periodic) {
+            r = (r + size) % size;
+            c = (c + size) % size;
+        }
+        return grid[r][c];
+    }
+
     public List<Position> getEmptyPositions() {
         List<Position> empties = new ArrayList<>();
         for (int i = 0; i < size; i++) {
@@ -38,7 +62,6 @@ public class Board implements Cloneable {
     public void placeMark(Position pos, Mark mark) {
         grid[pos.row()][pos.col()] = mark;
     }
-
 
     public boolean isWinningMove(Position pos, Mark mark) {
         int[][] directions = {{1, 0}, {0, 1}, {1, 1}, {1, -1}};
@@ -139,10 +162,6 @@ public class Board implements Cloneable {
         }
 
         return sb.toString();
-    }
-
-    public Mark getMarkAt(int r, int c) {
-        return grid[r][c];
     }
 }
 
