@@ -3,16 +3,21 @@ package implementation.config;
 import fais.zti.oramus.gomoku.Mark;
 
 public class BoardConfig {
-    private static final BoardConfig INSTANCE = new BoardConfig();
+    private static BoardConfig INSTANCE;
     public static final int MAX_SIZE = 15;
     public static final int MIN_SIZE = 10;
 
+    private boolean debug = false;
     private int size = 10;
     private boolean periodic = false;
     private Mark firstMark;
 
 
     private BoardConfig() {
+    }
+
+    public static void initialize() {
+        INSTANCE = new BoardConfig();
     }
 
     public static BoardConfig getInstance() {
@@ -41,6 +46,14 @@ public class BoardConfig {
 
     public void setFirstMark(Mark firstMark) {
         this.firstMark = firstMark;
+    }
+
+    public boolean isDebug() {
+        return debug;
+    }
+
+    public void setDebug() {
+        this.debug = true;
     }
 }
 

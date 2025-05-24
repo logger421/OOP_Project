@@ -9,7 +9,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class GomokuTest {
-
     private Gomoku engine;
     private Set<Move> history;
 
@@ -18,12 +17,13 @@ public class GomokuTest {
         history = new HashSet<>();
         engine = new Gomoku();
         engine.size(10);
-        engine.firstMark(Mark.CROSS);
+        engine.debugMode();
     }
 
     @Test
     void testEngine() throws TheWinnerIsException, ResignException, WrongBoardStateException {
         // brak wcześniejszych ruchów → powinno wybrać pierwsze wolne pole (0,0)
+        engine.firstMark(Mark.CROSS);
         Move next = engine.nextMove(history, Mark.CROSS);
 
         assertEquals(new Position(0, 0), next.position(), "Pierwszy ruch powinien być na (0,0)");
@@ -76,9 +76,8 @@ public class GomokuTest {
         history.add(new Move(new Position(3, 2), Mark.NOUGHT));
 
         history.add(new Move(new Position(4, 1), Mark.CROSS));
-        history.add(new Move(new Position(4, 2), Mark.CROSS));
         history.add(new Move(new Position(4, 3), Mark.CROSS));
-
+        history.add(new Move(new Position(4, 4), Mark.CROSS));
 
         // teraz X powinien zablokować na (4,2)
         Move next = engine.nextMove(history, Mark.CROSS);
@@ -119,9 +118,6 @@ public class GomokuTest {
 
     @Test
     void testWrongBoardStateException() {
-        engine.firstMark(Mark.CROSS);
-        engine.size(10);
-        history = new HashSet<>();
         history.add(new Move(new Position(4, 3), Mark.CROSS));
         history.add(new Move(new Position(5, 3), Mark.CROSS));
         history.add(new Move(new Position(6, 3), Mark.CROSS));
@@ -152,10 +148,6 @@ public class GomokuTest {
 
     @Test
     void testRotateBoardRight() throws TheWinnerIsException, ResignException, WrongBoardStateException {
-        engine.firstMark(Mark.CROSS);
-        engine.size(10);
-
-        history = new HashSet<>();
         history.add(new Move(new Position(2, 0), Mark.CROSS));
         history.add(new Move(new Position(2, 1), Mark.CROSS));
         history.add(new Move(new Position(2, 3), Mark.CROSS));
@@ -186,10 +178,6 @@ public class GomokuTest {
 
     @Test
     void testMiddleOfCrossPosition() throws TheWinnerIsException, ResignException, WrongBoardStateException {
-        engine.firstMark(Mark.CROSS);
-        engine.size(10);
-
-        history = new HashSet<>();
         history.add(new Move(new Position(2, 5), Mark.CROSS));
         history.add(new Move(new Position(1, 6), Mark.CROSS));
         history.add(new Move(new Position(3, 6), Mark.CROSS));
@@ -205,10 +193,6 @@ public class GomokuTest {
 
     @Test
     void testMiddleOfForkPosition() throws TheWinnerIsException, ResignException, WrongBoardStateException {
-        engine.firstMark(Mark.CROSS);
-        engine.size(10);
-
-        history = new HashSet<>();
         history.add(new Move(new Position(1, 2), Mark.CROSS));
         history.add(new Move(new Position(1, 6), Mark.CROSS));
         history.add(new Move(new Position(2, 3), Mark.CROSS));
@@ -240,10 +224,6 @@ public class GomokuTest {
 
     @Test
     void testResignException() {
-        engine.firstMark(Mark.CROSS);
-        engine.size(10);
-
-        history = new HashSet<>();
         history.add(new Move(new Position(2, 5), Mark.CROSS));
         history.add(new Move(new Position(1, 6), Mark.CROSS));
         history.add(new Move(new Position(3, 6), Mark.CROSS));
@@ -260,11 +240,8 @@ public class GomokuTest {
     // Test for the periodic boundary conditions
     @Test
     void testPeriodicBoundaryConditions() throws TheWinnerIsException, ResignException, WrongBoardStateException {
-        engine.firstMark(Mark.CROSS);
-        engine.size(10);
         engine.periodicBoundaryConditionsInUse();
 
-        history = new HashSet<>();
         history.add(new Move(new Position(0, 9), Mark.CROSS));
         history.add(new Move(new Position(0, 1), Mark.CROSS));
         history.add(new Move(new Position(0, 2), Mark.CROSS));
@@ -280,11 +257,8 @@ public class GomokuTest {
 
     @Test
     void testPeriodicBoundaryConditionsTheWInnerIsException() {
-        engine.firstMark(Mark.CROSS);
-        engine.size(10);
         engine.periodicBoundaryConditionsInUse();
 
-        history = new HashSet<>();
         history.add(new Move(new Position(0, 9), Mark.CROSS));
         history.add(new Move(new Position(0, 0), Mark.CROSS));
         history.add(new Move(new Position(0, 1), Mark.CROSS));
@@ -297,5 +271,40 @@ public class GomokuTest {
         history.add(new Move(new Position(2, 3), Mark.NOUGHT));
 
         assertThrows(TheWinnerIsException.class, () -> engine.nextMove(history, Mark.CROSS));
+    }
+
+    @Test
+    void testPeriodicBoundaryConditionsResignException() {
+        engine.periodicBoundaryConditionsInUse();
+
+        history.add(new Move(new Position(0, 9), Mark.CROSS));
+        history.add(new Move(new Position(0, 0), Mark.CROSS));
+        history.add(new Move(new Position(0, 1), Mark.CROSS));
+        history.add(new Move(new Position(0, 2), Mark.CROSS));
+
+        history.add(new Move(new Position(2, 4), Mark.NOUGHT));
+        history.add(new Move(new Position(1, 1), Mark.NOUGHT));
+        history.add(new Move(new Position(1, 2), Mark.NOUGHT));
+        history.add(new Move(new Position(2, 3), Mark.NOUGHT));
+
+        assertThrows(ResignException.class, () -> engine.nextMove(history, Mark.NOUGHT));
+    }
+
+    @Test
+    void testPeriodicBoundaryConditionsWithFork() throws TheWinnerIsException, ResignException, WrongBoardStateException {
+        engine.periodicBoundaryConditionsInUse();
+
+        history.add(new Move(new Position(0, 0), Mark.CROSS));
+        history.add(new Move(new Position(0, 1), Mark.CROSS));
+        history.add(new Move(new Position(0, 2), Mark.CROSS));
+        history.add(new Move(new Position(0, 3), Mark.CROSS));
+
+        history.add(new Move(new Position(1, 4), Mark.NOUGHT));
+        history.add(new Move(new Position(1, 5), Mark.NOUGHT));
+        history.add(new Move(new Position(1, 6), Mark.NOUGHT));
+        history.add(new Move(new Position(1, 7), Mark.NOUGHT));
+
+        // Fork at (0,4) and (0,5)
+        assertEquals(new Move(new Position(4, 0), Mark.CROSS), engine.nextMove(history, Mark.CROSS));
     }
 }
