@@ -78,13 +78,14 @@ public class GomokuTest {
         history.add(new Move(new Position(4, 1), Mark.CROSS));
         history.add(new Move(new Position(4, 2), Mark.CROSS));
         history.add(new Move(new Position(4, 3), Mark.CROSS));
+
+
         // teraz X powinien zablokować na (4,2)
         Move next = engine.nextMove(history, Mark.CROSS);
 
         assertEquals(new Position(4, 2), next.position(), "Strategia BlockOpponent powinna wskazać (4,2)");
         assertEquals(Mark.CROSS, next.mark());
     }
-
 
     @Test
     void testCreateForkStrategy() throws Exception {
@@ -116,7 +117,112 @@ public class GomokuTest {
         assertEquals(Mark.CROSS, next.mark());
     }
 
+    @Test
+    void testWrongBoardStateException() {
+        engine.firstMark(Mark.CROSS);
+        engine.size(10);
+        history = new HashSet<>();
+        history.add(new Move(new Position(4, 3), Mark.CROSS));
+        history.add(new Move(new Position(5, 3), Mark.CROSS));
+        history.add(new Move(new Position(6, 3), Mark.CROSS));
+        history.add(new Move(new Position(7, 3), Mark.CROSS));
+        history.add(new Move(new Position(8, 3), Mark.CROSS));
 
+        history.add(new Move(new Position(4, 5), Mark.CROSS));
+        history.add(new Move(new Position(5, 5), Mark.CROSS));
+        history.add(new Move(new Position(6, 5), Mark.CROSS));
+        history.add(new Move(new Position(7, 5), Mark.CROSS));
+        history.add(new Move(new Position(8, 5), Mark.CROSS));
+
+        history.add(new Move(new Position(3, 4), Mark.NOUGHT));
+        history.add(new Move(new Position(4, 4), Mark.NOUGHT));
+        history.add(new Move(new Position(5, 4), Mark.NOUGHT));
+        history.add(new Move(new Position(6, 4), Mark.NOUGHT));
+
+        history.add(new Move(new Position(4, 2), Mark.NOUGHT));
+        history.add(new Move(new Position(5, 2), Mark.NOUGHT));
+        history.add(new Move(new Position(6, 2), Mark.NOUGHT));
+        history.add(new Move(new Position(7, 2), Mark.NOUGHT));
+
+        history.add(new Move(new Position(3, 3), Mark.NOUGHT));
+        history.add(new Move(new Position(3, 5), Mark.NOUGHT));
+
+        assertThrows(WrongBoardStateException.class, () -> engine.nextMove(history, Mark.CROSS));
+    }
+
+    @Test
+    void testRotateBoardRight() throws TheWinnerIsException, ResignException, WrongBoardStateException {
+        engine.firstMark(Mark.CROSS);
+        engine.size(10);
+
+        history = new HashSet<>();
+        history.add(new Move(new Position(2, 0), Mark.CROSS));
+        history.add(new Move(new Position(2, 1), Mark.CROSS));
+        history.add(new Move(new Position(2, 3), Mark.CROSS));
+        history.add(new Move(new Position(2, 4), Mark.CROSS));
+
+        history.add(new Move(new Position(1, 2), Mark.NOUGHT));
+        history.add(new Move(new Position(3, 2), Mark.NOUGHT));
+        history.add(new Move(new Position(4, 2), Mark.NOUGHT));
+        history.add(new Move(new Position(5, 2), Mark.NOUGHT));
+
+        Move predicted = engine.nextMove(history, Mark.CROSS);
+
+        // Obracamy planszę w prawo
+        history = new HashSet<>();
+        history.add(new Move(new Position(0, 2), Mark.CROSS));
+        history.add(new Move(new Position(1, 2), Mark.CROSS));
+        history.add(new Move(new Position(3, 2), Mark.CROSS));
+        history.add(new Move(new Position(4, 2), Mark.CROSS));
+
+        history.add(new Move(new Position(2, 1), Mark.NOUGHT));
+        history.add(new Move(new Position(2, 3), Mark.NOUGHT));
+        history.add(new Move(new Position(2, 4), Mark.NOUGHT));
+        history.add(new Move(new Position(2, 5), Mark.NOUGHT));
+
+        Move actual = engine.nextMove(history, Mark.CROSS);
+        assertEquals(predicted.position(), actual.position(), "Ruch powinien być taki sam po obrocie planszy");
+    }
+
+    @Test
+    void testMiddleOfCrossPosition() throws TheWinnerIsException, ResignException, WrongBoardStateException {
+        engine.firstMark(Mark.CROSS);
+        engine.size(10);
+
+        history = new HashSet<>();
+        history.add(new Move(new Position(2, 5), Mark.CROSS));
+        history.add(new Move(new Position(1, 6), Mark.CROSS));
+        history.add(new Move(new Position(3, 6), Mark.CROSS));
+        history.add(new Move(new Position(2, 7), Mark.CROSS));
+
+        history.add(new Move(new Position(4, 4), Mark.NOUGHT));
+        history.add(new Move(new Position(5, 5), Mark.NOUGHT));
+        history.add(new Move(new Position(6, 6), Mark.NOUGHT));
+        history.add(new Move(new Position(7, 5), Mark.NOUGHT));
+
+        assertEquals(new Move(new Position(2, 6), Mark.CROSS),  engine.nextMove(history, Mark.CROSS));
+    }
+
+    @Test
+    void testMiddleOfForkPosition() throws TheWinnerIsException, ResignException, WrongBoardStateException {
+        engine.firstMark(Mark.CROSS);
+        engine.size(10);
+
+        history = new HashSet<>();
+        history.add(new Move(new Position(1, 2), Mark.CROSS));
+        history.add(new Move(new Position(1, 6), Mark.CROSS));
+        history.add(new Move(new Position(2, 3), Mark.CROSS));
+        history.add(new Move(new Position(2, 5), Mark.CROSS));
+
+        history.add(new Move(new Position(4, 4), Mark.NOUGHT));
+        history.add(new Move(new Position(5, 5), Mark.NOUGHT));
+        history.add(new Move(new Position(6, 6), Mark.NOUGHT));
+        history.add(new Move(new Position(7, 5), Mark.NOUGHT));
+
+        assertEquals(new Move(new Position(3, 4), Mark.CROSS), engine.nextMove(history, Mark.CROSS));
+    }
+
+    // Scenarios testing the ResignException
     @Test
     void testResignWhenNoMoves() {
         history.add(new Move(new Position(0, 1), Mark.CROSS));
@@ -132,4 +238,22 @@ public class GomokuTest {
         assertThrows(ResignException.class, () -> engine.nextMove(history, Mark.NOUGHT));
     }
 
+    @Test
+    void testResignException() {
+        engine.firstMark(Mark.CROSS);
+        engine.size(10);
+
+        history = new HashSet<>();
+        history.add(new Move(new Position(2, 5), Mark.CROSS));
+        history.add(new Move(new Position(1, 6), Mark.CROSS));
+        history.add(new Move(new Position(3, 6), Mark.CROSS));
+        history.add(new Move(new Position(2, 7), Mark.CROSS));
+
+        history.add(new Move(new Position(4, 4), Mark.NOUGHT));
+        history.add(new Move(new Position(5, 5), Mark.NOUGHT));
+        history.add(new Move(new Position(6, 6), Mark.NOUGHT));
+        history.add(new Move(new Position(7, 7), Mark.NOUGHT));
+
+        assertThrows(ResignException.class, () -> engine.nextMove(history, Mark.CROSS));
+    }
 }
