@@ -22,7 +22,6 @@ public class GomokuTest {
 
     @Test
     void testEngine() throws TheWinnerIsException, ResignException, WrongBoardStateException {
-        // brak wcześniejszych ruchów → powinno wybrać pierwsze wolne pole (0,0)
         engine.firstMark(Mark.CROSS);
         Move next = engine.nextMove(history, Mark.CROSS);
 
@@ -33,7 +32,6 @@ public class GomokuTest {
 
     @Test
     void testWinImmediatelyStrategy() throws Exception {
-        // przygotuj sytuację 4 w linii dla X na wierszu 0: pola (0,0),(0,1),(0,2),(0,3)
         history.add(new Move(new Position(0, 0), Mark.CROSS));
         history.add(new Move(new Position(0, 1), Mark.CROSS));
         history.add(new Move(new Position(0, 2), Mark.CROSS));
@@ -69,7 +67,6 @@ public class GomokuTest {
 
     @Test
     void testBlockOpponentStrategy() throws Exception {
-        // sytuacja: przeciwnik O ma 4 w linii na kolumnie 2: (0,2),(1,2),(2,2),(3,2)
         history.add(new Move(new Position(0, 2), Mark.NOUGHT));
         history.add(new Move(new Position(1, 2), Mark.NOUGHT));
         history.add(new Move(new Position(2, 2), Mark.NOUGHT));
@@ -295,9 +292,9 @@ public class GomokuTest {
         engine.periodicBoundaryConditionsInUse();
 
         history.add(new Move(new Position(0, 0), Mark.CROSS));
-        history.add(new Move(new Position(0, 1), Mark.CROSS));
-        history.add(new Move(new Position(0, 2), Mark.CROSS));
-        history.add(new Move(new Position(0, 3), Mark.CROSS));
+        history.add(new Move(new Position(1, 0), Mark.CROSS));
+        history.add(new Move(new Position(2, 0), Mark.CROSS));
+        history.add(new Move(new Position(3, 0), Mark.CROSS));
 
         history.add(new Move(new Position(1, 4), Mark.NOUGHT));
         history.add(new Move(new Position(1, 5), Mark.NOUGHT));

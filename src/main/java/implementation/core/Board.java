@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Board implements Cloneable {
+    private static final int[][] directions = {{1, 0}, {0, 1}, {1, 1}, {1, -1}};
+
     private final int size;
     private final boolean periodic;
     private final Mark[][] grid;
@@ -23,36 +25,28 @@ public class Board implements Cloneable {
         }
     }
 
-
-    public int getSize() {
-        return size;
-    }
-
     public boolean isInside(int row, int col) {
-        if (periodic) {
-            return true;
-        }
-        return row >= 0 && row < size
-                && col >= 0 && col < size;
+        if (periodic) return true;
+        return row >= 0 && row < size && col >= 0 && col < size;
     }
 
-    public Mark getMarkAt(int r, int c) {
-        if (!isInside(r, c)) {
-            throw new IndexOutOfBoundsException("Outside board: " + r + "," + c);
+    public Mark getMarkAt(int row, int col) {
+        if (!isInside(row, col)) {
+            throw new IndexOutOfBoundsException("Outside board: Position[" + col + "," + row + "]");
         }
         if (periodic) {
-            r = (r + size) % size;
-            c = (c + size) % size;
+            row = (row + size) % size;
+            col = (col + size) % size;
         }
-        return grid[r][c];
+        return grid[col][row];
     }
 
     public List<Position> getEmptyPositions() {
         List<Position> empties = new ArrayList<>();
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                if (grid[i][j] == Mark.NULL) {
-                    empties.add(new Position(i, j));
+        for (int col = 0; col < size; col++) {
+            for (int row = 0; row < size; row++) {
+                if (grid[col][row] == Mark.NULL) {
+                    empties.add(new Position(col, row));
                 }
             }
         }
@@ -60,39 +54,31 @@ public class Board implements Cloneable {
     }
 
     public void placeMark(Position pos, Mark mark) {
-        if (!isInside(pos.row(), pos.col())) {
-            throw new IndexOutOfBoundsException("Outside board: " + pos.row() + "," + pos.col());
-        }
-        if (periodic) {
-            pos = new Position((pos.row() + size) % size, (pos.col() + size) % size);
-        }
-        grid[pos.row()][pos.col()] = mark;
+        if (!isInside(pos.row(), pos.col()))
+            throw new IndexOutOfBoundsException("Outside board: Position[" + pos.col() + "," + pos.row() + "]");
+        if (periodic)
+            pos = new Position((pos.col() + size) % size, (pos.row() + size) % size);
+        grid[pos.col()][pos.row()] = mark;
     }
 
     public boolean isWinningMove(Position pos, Mark mark) {
-        int[][] directions = {{1, 0}, {0, 1}, {1, 1}, {1, -1}};
-
-        for (int[] d : directions) {
+        for (int[] direction : directions) {
             int count = 1;
-            count += countDirection(pos, mark, d[0], d[1]);
-            count += countDirection(pos, mark, -d[0], -d[1]);
-
+            count += countDirection(pos, mark, direction[0], direction[1]);
+            count += countDirection(pos, mark, -direction[0], -direction[1]);
             if (count >= 5) return true;
         }
         return false;
     }
 
-    public boolean hasAlreadyWon(Mark m) {
-        int[][] directions = {{1, 0}, {0, 1}, {1, 1}, {1, -1}};
-
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                if (grid[i][j] == m) {
-                    for (int[] d : directions) {
+    public boolean hasAlreadyWon(Mark mark) {
+        for (int col = 0; col < size; col++) {
+            for (int row = 0; row < size; row++) {
+                if (grid[col][row] == mark) {
+                    for (int[] direction : directions) {
                         int count = 1;
-                        count += countDirection(new Position(i, j), m, d[0], d[1]);
-                        count += countDirection(new Position(i, j), m, -d[0], -d[1]);
-
+                        count += countDirection(new Position(col, row), mark, direction[0], direction[1]);
+                        count += countDirection(new Position(col, row), mark, -direction[0], -direction[1]);
                         if (count >= 5) return true;
                     }
                 }
@@ -102,24 +88,49 @@ public class Board implements Cloneable {
     }
 
     private int countDirection(Position pos, Mark mark, int dx, int dy) {
-        int r = pos.row();
-        int c = pos.col();
+        int row = pos.row();
+        int col = pos.col();
         int cnt = 0;
 
         while (true) {
-            r += dx;
-            c += dy;
+            row += dx;
+            col += dy;
             if (periodic) {
-                r = (r + size) % size;
-                c = (c + size) % size;
+                row = (row + size) % size;
+                col = (col + size) % size;
             } else {
-                if (r < 0 || r >= size || c < 0 || c >= size) break;
+                if (row < 0 || row >= size || col < 0 || col >= size) break;
             }
-            if (grid[r][c] == mark) cnt++;
+            if (grid[col][row] == mark) cnt++;
             else break;
         }
 
         return cnt;
+    }
+
+    public int countWinningLines(Mark mark) {
+        int lines = 0;
+        for (int col = 0; col < size; col++) {
+            for (int row = 0; row < size; row++) {
+                if (getMarkAt(col, row) != mark) continue;
+                for (int[] direction : directions) {
+                    int pr = col - direction[0], pc = row - direction[1];
+
+                    if (isInside(pr, pc) && getMarkAt(pr, pc) == mark)
+                        continue;
+
+                    int len = 0, rr = col, cc = row;
+                    while (isInside(rr, cc) && getMarkAt(rr, cc) == mark) {
+                        len++;
+                        rr += direction[0];
+                        cc += direction[1];
+                    }
+
+                    if (len >= 5) lines++;
+                }
+            }
+        }
+        return lines;
     }
 
     @Override
@@ -152,7 +163,7 @@ public class Board implements Cloneable {
             sb.append(" ".repeat(rowNumWidth - rowNum.length())).append(rowNum).append("|");
 
             for (int j = 0; j < size; j++) {
-                sb.append(grid[i][j] == Mark.NULL ? "." : grid[i][j].toString().toUpperCase()).append(" ");
+                sb.append(grid[j][i] == Mark.NULL ? "." : grid[j][i].toString().toUpperCase()).append(" ");
             }
             sb.append("|\n");
         }
