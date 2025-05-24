@@ -102,6 +102,45 @@ public class Board implements Cloneable {
         return copy;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        int rowNumWidth = String.valueOf(size - 1).length();
+
+        sb.append(" ".repeat(rowNumWidth + 1));
+
+        for (int i = 0; i < size; i++) {
+            sb.append(i % 10).append(" ");
+        }
+        sb.append("\n");
+
+        sb.append(" ".repeat(rowNumWidth)).append("+");
+        sb.append("--".repeat(Math.max(0, size))); // Two dashes per cell
+        sb.append("+\n");
+
+        for (int i = 0; i < size; i++) {
+            String rowNum = String.valueOf(i);
+            sb.append(" ".repeat(rowNumWidth - rowNum.length())).append(rowNum).append("|");
+
+            for (int j = 0; j < size; j++) {
+                sb.append(grid[i][j] == Mark.NULL ? "." : grid[i][j].toString().toUpperCase()).append(" ");
+            }
+            sb.append("|\n");
+        }
+
+        // Bottom border
+        sb.append(" ".repeat(rowNumWidth)).append("+");
+        sb.append("--".repeat(Math.max(0, size))); // Two dashes per cell
+        sb.append("+\n");
+
+        // Add a legend for larger boards
+        if (size > 10) {
+            sb.append("Note: Column numbers shown are modulo 10\n");
+        }
+
+        return sb.toString();
+    }
+
     public Mark getMarkAt(int r, int c) {
         return grid[r][c];
     }
