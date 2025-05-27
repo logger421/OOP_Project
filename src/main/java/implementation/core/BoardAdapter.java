@@ -25,9 +25,6 @@ public class BoardAdapter {
             board.placeMark(mv.position(), mv.mark());
         }
 
-        int xWins = board.countWinningLines(Mark.CROSS);
-        int oWins = board.countWinningLines(Mark.NOUGHT);
-        if (xWins + oWins > 1) throw new WrongBoardStateException();
         return board;
     }
 

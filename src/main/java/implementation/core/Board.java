@@ -30,6 +30,12 @@ public class Board implements Cloneable {
         return row >= 0 && row < size && col >= 0 && col < size;
     }
 
+    public void placeMark(Position pos, Mark mark) {
+        if (periodic)
+            pos = new Position((pos.col() + size) % size, (pos.row() + size) % size);
+        grid[pos.col()][pos.row()] = mark;
+    }
+
     public Mark getMarkAt(int row, int col) {
         if (periodic) {
             row = (row + size) % size;
@@ -50,11 +56,6 @@ public class Board implements Cloneable {
         return empties;
     }
 
-    public void placeMark(Position pos, Mark mark) {
-        if (periodic)
-            pos = new Position((pos.col() + size) % size, (pos.row() + size) % size);
-        grid[pos.col()][pos.row()] = mark;
-    }
 
     public boolean isWinningMove(Position pos, Mark mark) {
         for (int[] direction : directions) {
@@ -82,7 +83,7 @@ public class Board implements Cloneable {
         return false;
     }
 
-    private int countDirection(Position pos, Mark mark, int dx, int dy) {
+    public int countDirection(Position pos, Mark mark, int dx, int dy) {
         int row = pos.row();
         int col = pos.col();
         int cnt = 0;
@@ -96,36 +97,11 @@ public class Board implements Cloneable {
             } else {
                 if (row < 0 || row >= size || col < 0 || col >= size) break;
             }
-            if (grid[col][row] == mark) cnt++;
+            if (getMarkAt(row, col) == mark) cnt++;
             else break;
         }
 
         return cnt;
-    }
-
-    public int countWinningLines(Mark mark) {
-        int lines = 0;
-        for (int col = 0; col < size; col++) {
-            for (int row = 0; row < size; row++) {
-                if (getMarkAt(col, row) != mark) continue;
-                for (int[] direction : directions) {
-                    int pr = col - direction[0], pc = row - direction[1];
-
-                    if (isInside(pr, pc) && getMarkAt(pr, pc) == mark)
-                        continue;
-
-                    int len = 0, rr = col, cc = row;
-                    while (isInside(rr, cc) && getMarkAt(rr, cc) == mark) {
-                        len++;
-                        rr += direction[0];
-                        cc += direction[1];
-                    }
-
-                    if (len >= 5) lines++;
-                }
-            }
-        }
-        return lines;
     }
 
     @Override

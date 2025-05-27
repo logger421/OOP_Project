@@ -6,6 +6,7 @@ import implementation.core.HandlerChainBuilder;
 import implementation.core.handlers.MoveHandler;
 import implementation.core.moves.BlockOpponentStrategy;
 import implementation.core.moves.CreateForkStrategy;
+import implementation.core.moves.ExtendLineStrategy;
 import implementation.core.moves.WinImmediatelyStrategy;
 
 import java.util.Optional;
@@ -22,8 +23,9 @@ public class Gomoku implements Game {
                 .addWinnerCheck()
                 .addStrategy(new WinImmediatelyStrategy())
                 .addResignCheck()
-                .addStrategy(new BlockOpponentStrategy())
                 .addStrategy(new CreateForkStrategy())
+                .addStrategy(new ExtendLineStrategy())
+                .addStrategy(new BlockOpponentStrategy())
                 .addDefault()
                 .build();
     }

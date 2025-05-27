@@ -7,10 +7,10 @@ public class BoardConfig {
     public static final int MAX_SIZE = 15;
     public static final int MIN_SIZE = 10;
 
-    private boolean debug = false;
+    private Mark firstMark;
     private int size = 10;
     private boolean periodic = false;
-    private Mark firstMark;
+    private boolean debug = false;
 
 
     private BoardConfig() {

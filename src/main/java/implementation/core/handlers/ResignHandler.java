@@ -21,24 +21,10 @@ public class ResignHandler extends MoveHandler {
                 .filter(p -> board.isWinningMove(p, opponent))
                 .toList();
 
-        if (opponentThreats.isEmpty()) {
-            return Optional.empty();
-        }
         if (opponentThreats.size() > 1) {
             throw new ResignException();
         }
-        for (Position defend : board.getEmptyPositions()) {
-            Board sim = board.clone();
-            sim.placeMark(defend, mark);
 
-            boolean anyRemains = sim.getEmptyPositions().stream()
-                    .anyMatch(p -> sim.isWinningMove(p, opponent));
-
-            if (!anyRemains) {
-                return Optional.empty();
-            }
-        }
-
-        throw new ResignException();
+        return Optional.empty();
     }
 }
