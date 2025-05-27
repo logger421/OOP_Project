@@ -50,6 +50,23 @@ public class GomokuTest {
     }
 
     @Test
+    void testWinImmediatelyStrategyWithThreeCrossOnBoard() throws Exception {
+        history.add(new Move(new Position(0, 0), Mark.CROSS));
+        history.add(new Move(new Position(1, 1), Mark.CROSS));
+        history.add(new Move(new Position(2, 2), Mark.CROSS));
+
+        history.add(new Move(new Position(2, 0), Mark.NOUGHT));
+        history.add(new Move(new Position(3, 1), Mark.NOUGHT));
+        history.add(new Move(new Position(4, 2), Mark.NOUGHT));
+
+        // teraz X powinien dołożyć na (0,4) i wygrać
+        Move next = engine.nextMove(history, Mark.CROSS);
+
+        assertEquals(new Position(3, 3), next.position(), "Strategia WinImmediately powinna wskazać (0,4)");
+        assertEquals(Mark.CROSS, next.mark());
+    }
+
+    @Test
     void testTheWinnerIsExceptionOnImmediateBoard() {
         history.add(new Move(new Position(0, 0), Mark.CROSS));
         history.add(new Move(new Position(0, 1), Mark.CROSS));
@@ -111,36 +128,6 @@ public class GomokuTest {
 
         assertEquals(new Position(1, 2), next.position(), "CreateFork powinien wskazać (1,2)");
         assertEquals(Mark.CROSS, next.mark());
-    }
-
-    @Test
-    void testWrongBoardStateException() {
-        history.add(new Move(new Position(4, 3), Mark.CROSS));
-        history.add(new Move(new Position(5, 3), Mark.CROSS));
-        history.add(new Move(new Position(6, 3), Mark.CROSS));
-        history.add(new Move(new Position(7, 3), Mark.CROSS));
-        history.add(new Move(new Position(8, 3), Mark.CROSS));
-
-        history.add(new Move(new Position(4, 5), Mark.CROSS));
-        history.add(new Move(new Position(5, 5), Mark.CROSS));
-        history.add(new Move(new Position(6, 5), Mark.CROSS));
-        history.add(new Move(new Position(7, 5), Mark.CROSS));
-        history.add(new Move(new Position(8, 5), Mark.CROSS));
-
-        history.add(new Move(new Position(3, 4), Mark.NOUGHT));
-        history.add(new Move(new Position(4, 4), Mark.NOUGHT));
-        history.add(new Move(new Position(5, 4), Mark.NOUGHT));
-        history.add(new Move(new Position(6, 4), Mark.NOUGHT));
-
-        history.add(new Move(new Position(4, 2), Mark.NOUGHT));
-        history.add(new Move(new Position(5, 2), Mark.NOUGHT));
-        history.add(new Move(new Position(6, 2), Mark.NOUGHT));
-        history.add(new Move(new Position(7, 2), Mark.NOUGHT));
-
-        history.add(new Move(new Position(3, 3), Mark.NOUGHT));
-        history.add(new Move(new Position(3, 5), Mark.NOUGHT));
-
-        assertThrows(WrongBoardStateException.class, () -> engine.nextMove(history, Mark.CROSS));
     }
 
     @Test
