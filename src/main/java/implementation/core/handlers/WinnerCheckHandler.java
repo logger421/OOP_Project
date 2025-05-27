@@ -8,15 +8,14 @@ import implementation.core.Board;
 import java.util.Optional;
 
 public class WinnerCheckHandler extends MoveHandler {
+
     public WinnerCheckHandler(MoveHandler next) {
         super(next);
     }
 
     @Override
-    protected Optional<Move> doHandle(Board board, Mark mark)
-            throws TheWinnerIsException {
-        if (board.hasAlreadyWon(Mark.CROSS) || board.hasAlreadyWon(Mark.NOUGHT))
-            throw new TheWinnerIsException(mark);
+    protected Optional<Move> doHandle(Board board, Mark mark) throws TheWinnerIsException {
+        if (board.hasAlreadyWon(Mark.CROSS) || board.hasAlreadyWon(Mark.NOUGHT)) throw new TheWinnerIsException(mark);
         return Optional.empty();
     }
 }

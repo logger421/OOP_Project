@@ -17,14 +17,9 @@ public abstract class MoveHandler {
     }
 
     public final Optional<Move> handle(Board board, Mark mark) throws TheWinnerIsException, ResignException {
-
         Optional<Move> result = doHandle(board, mark);
-        if (result.isPresent()) {
-            return result;
-        }
-        if (next != null) {
-            return next.handle(board, mark);
-        }
+        if (result.isPresent()) return result;
+        if (next != null) return next.handle(board, mark);
         return Optional.empty();
     }
 

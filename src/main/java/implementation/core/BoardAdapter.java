@@ -21,9 +21,9 @@ public class BoardAdapter {
         validateBoardState(this.rawMoves);
 
         Board board = new Board(config.getSize(), config.isPeriodic());
-        for (Move mv : rawMoves) {
+
+        for (Move mv : rawMoves)
             board.placeMark(mv.position(), mv.mark());
-        }
 
         return board;
     }
@@ -31,9 +31,7 @@ public class BoardAdapter {
     private void validateBoardState(Set<Move> moves) throws WrongBoardStateException {
         int size = config.getSize();
 
-        if (size > BoardConfig.MAX_SIZE || size < BoardConfig.MIN_SIZE) {
-            throw new WrongBoardStateException();
-        }
+        if (size > BoardConfig.MAX_SIZE || size < BoardConfig.MIN_SIZE) throw new WrongBoardStateException();
 
         long countX = 0, countO = 0;
         for (Move m : moves) {
@@ -45,8 +43,6 @@ public class BoardAdapter {
             else if (m.mark() == Mark.NOUGHT) countO++;
         }
 
-        if (Math.abs(countX - countO) > 1) {
-            throw new WrongBoardStateException();
-        }
+        if (Math.abs(countX - countO) > 1) throw new WrongBoardStateException();
     }
 }

@@ -21,9 +21,7 @@ public class ResignHandler extends MoveHandler {
                 .filter(p -> board.isWinningMove(p, opponent))
                 .toList();
 
-        if (opponentThreats.size() > 1) {
-            throw new ResignException();
-        }
+        if (opponentThreats.size() > 1) throw new ResignException();
 
         return Optional.empty();
     }

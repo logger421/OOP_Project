@@ -11,9 +11,7 @@ public class WinImmediatelyStrategy implements MoveStrategy {
     @Override
     public Optional<Move> findMove(Board board, Mark mark) {
         for (Position pos : board.getEmptyPositions()) {
-            if (board.isWinningMove(pos, mark)) {
-                return Optional.of(new Move(pos, mark));
-            }
+            if (board.isWinningMove(pos, mark)) return Optional.of(new Move(pos, mark));
         }
         return Optional.empty();
     }
