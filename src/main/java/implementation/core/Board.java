@@ -17,17 +17,7 @@ public class Board implements Cloneable {
         this.size = size;
         this.periodic = periodic;
         this.grid = new Mark[size][size];
-
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                grid[i][j] = Mark.NULL;
-            }
-        }
-    }
-
-    public boolean isInside(int row, int col) {
-        if (periodic) return true;
-        return row >= 0 && row < size && col >= 0 && col < size;
+        init();
     }
 
     public void placeMark(Position pos, Mark mark) {
@@ -36,26 +26,17 @@ public class Board implements Cloneable {
         grid[pos.col()][pos.row()] = mark;
     }
 
-    public Mark getMarkAt(int row, int col) {
-        if (periodic) {
-            row = (row + size) % size;
-            col = (col + size) % size;
-        }
-        return grid[col][row];
-    }
-
     public List<Position> getEmptyPositions() {
         List<Position> empties = new ArrayList<>();
         for (int col = 0; col < size; col++) {
             for (int row = 0; row < size; row++) {
-                if (grid[col][row] == Mark.NULL) {
+                if (getMarkAt(row, col) == Mark.NULL) {
                     empties.add(new Position(col, row));
                 }
             }
         }
         return empties;
     }
-
 
     public boolean isWinningMove(Position pos, Mark mark) {
         for (int[] direction : directions) {
@@ -70,7 +51,7 @@ public class Board implements Cloneable {
     public boolean hasAlreadyWon(Mark mark) {
         for (int col = 0; col < size; col++) {
             for (int row = 0; row < size; row++) {
-                if (grid[col][row] == mark) {
+                if (getMarkAt(row, col) == mark) {
                     for (int[] direction : directions) {
                         int count = 1;
                         count += countDirection(new Position(col, row), mark, direction[0], direction[1]);
@@ -148,6 +129,22 @@ public class Board implements Cloneable {
         }
 
         return sb.toString();
+    }
+
+    private Mark getMarkAt(int row, int col) {
+        if (periodic) {
+            row = (row + size) % size;
+            col = (col + size) % size;
+        }
+        return grid[col][row];
+    }
+
+    private void init() {
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                grid[i][j] = Mark.NULL;
+            }
+        }
     }
 }
 
