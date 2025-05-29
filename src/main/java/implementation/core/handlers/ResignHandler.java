@@ -6,7 +6,6 @@ import fais.zti.oramus.gomoku.Position;
 import fais.zti.oramus.gomoku.ResignException;
 import implementation.core.Board;
 
-import java.util.List;
 import java.util.Optional;
 
 public class ResignHandler extends MoveHandler {
@@ -17,12 +16,40 @@ public class ResignHandler extends MoveHandler {
     @Override
     protected Optional<Move> doHandle(Board board, Mark mark) throws ResignException {
         Mark opponent = (mark == Mark.CROSS) ? Mark.NOUGHT : Mark.CROSS;
-        List<Position> opponentThreats = board.getEmptyPositions().stream()
-                .filter(p -> board.isWinningMove(p, opponent))
-                .toList();
+        boolean haveSafeMove = false;
 
-        if (opponentThreats.size() > 1) throw new ResignException();
+        for (Position myMove : board.getEmptyPositions()) {
+            Board sim = board.clone();
+            sim.placeMark(myMove, mark);
 
+            boolean opponentCanAlwaysWin = false;
+
+            for (Position oppMove : sim.getEmptyPositions()) {
+                Board afterOppMove = sim.clone();
+                afterOppMove.placeMark(oppMove, opponent);
+
+                if (afterOppMove.isWinningMove(oppMove, opponent)) {
+                    opponentCanAlwaysWin = true;
+                    break;
+                }
+
+                int threats = 0;
+
+                for (Position winMove : afterOppMove.getEmptyPositions()) {
+                    if (afterOppMove.isWinningMove(winMove, opponent)) threats++;
+                }
+                if (threats >= 2) {
+                    opponentCanAlwaysWin = true;
+                    break;
+                }
+            }
+            if (!opponentCanAlwaysWin) {
+                haveSafeMove = true;
+                break;
+            }
+        }
+
+        if (!haveSafeMove) throw new ResignException();
         return Optional.empty();
     }
 }

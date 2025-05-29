@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Board implements Cloneable {
-    private static final int[][] directions = {{1, 0}, {0, 1}, {1, 1}, {1, -1}};
+    public static final int[][] directions = {{1, 0}, {0, 1}, {1, 1}, {1, -1}};
 
     private final int size;
     private final boolean periodic;
@@ -62,6 +62,12 @@ public class Board implements Cloneable {
             }
         }
         return false;
+    }
+
+    public boolean isEndOpen(Position pos, int dx, int dy) {
+        int row = pos.row() + dx, col = pos.col() + dy;
+        if (row < 0 || row >= size || col < 0 || col >= size) return false;
+        return getMarkAt(row, col) == Mark.CROSS;
     }
 
     public int countDirection(Position pos, Mark mark, int dx, int dy) {

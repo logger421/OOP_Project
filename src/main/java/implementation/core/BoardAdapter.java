@@ -10,10 +10,12 @@ import java.util.Set;
 
 public class BoardAdapter {
     private final Set<Move> rawMoves;
+    private final Mark currentMark;
     private final BoardConfig config;
 
-    public BoardAdapter(Set<Move> rawMoves, BoardConfig config) {
+    public BoardAdapter(Set<Move> rawMoves, BoardConfig config, Mark currentMark) {
         this.rawMoves = rawMoves;
+        this.currentMark = currentMark;
         this.config = config;
     }
 
@@ -44,5 +46,10 @@ public class BoardAdapter {
         }
 
         if (Math.abs(countX - countO) > 1) throw new WrongBoardStateException();
+
+        if ((countX < countO && config.getFirstMark() == Mark.NOUGHT && currentMark == Mark.NOUGHT) ||
+                (countO < countX && config.getFirstMark() == Mark.CROSS && currentMark == Mark.CROSS)) {
+            throw new WrongBoardStateException();
+        }
     }
 }

@@ -23,9 +23,9 @@ public class Gomoku implements Game {
                 .addWinnerCheck()
                 .addStrategy(new WinImmediatelyStrategy())
                 .addResignCheck()
+                .addStrategy(new BlockOpponentStrategy())
                 .addStrategy(new CreateForkStrategy())
                 .addStrategy(new ExtendLineStrategy())
-                .addStrategy(new BlockOpponentStrategy())
                 .addDefault()
                 .build();
     }
@@ -52,7 +52,7 @@ public class Gomoku implements Game {
     @Override
     public Move nextMove(Set<Move> previousMoves, Mark myMark)
             throws WrongBoardStateException, TheWinnerIsException, ResignException {
-        Board board = new BoardAdapter(previousMoves, config).toBoard();
+        Board board = new BoardAdapter(previousMoves, config, myMark).toBoard();
         if (config.isDebug()) {
             System.out.println("Current board state:");
             System.out.println(board);
