@@ -169,8 +169,8 @@ public class GomokuTest {
 
         history.add(new Move(new Position(4, 4), Mark.NOUGHT));
         history.add(new Move(new Position(5, 5), Mark.NOUGHT));
-        history.add(new Move(new Position(6, 6), Mark.NOUGHT));
-        history.add(new Move(new Position(7, 5), Mark.NOUGHT));
+        history.add(new Move(new Position(6, 5), Mark.NOUGHT));
+        history.add(new Move(new Position(7, 4), Mark.NOUGHT));
 
         assertEquals(new Move(new Position(2, 6), Mark.CROSS), engine.nextMove(history, Mark.CROSS));
     }
@@ -182,10 +182,10 @@ public class GomokuTest {
         history.add(new Move(new Position(2, 3), Mark.CROSS));
         history.add(new Move(new Position(2, 5), Mark.CROSS));
 
-        history.add(new Move(new Position(4, 4), Mark.NOUGHT));
+        history.add(new Move(new Position(5, 4), Mark.NOUGHT));
         history.add(new Move(new Position(5, 5), Mark.NOUGHT));
         history.add(new Move(new Position(6, 6), Mark.NOUGHT));
-        history.add(new Move(new Position(7, 5), Mark.NOUGHT));
+        history.add(new Move(new Position(7, 6), Mark.NOUGHT));
 
         assertEquals(new Move(new Position(3, 4), Mark.CROSS), engine.nextMove(history, Mark.CROSS));
     }
