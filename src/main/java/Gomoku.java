@@ -24,8 +24,8 @@ public class Gomoku implements Game {
                 .addStrategy(new WinImmediatelyStrategy())
                 .addResignCheck()
                 .addStrategy(new BlockOpponentStrategy())
-                .addStrategy(new CreateForkStrategy())
                 .addStrategy(new ExtendLineStrategy())
+                .addStrategy(new CreateForkStrategy())
                 .addDefault()
                 .build();
     }

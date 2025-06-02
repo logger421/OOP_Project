@@ -31,6 +31,6 @@ public class ExtendLineStrategy implements MoveStrategy {
             }
         }
 
-        return best != null && maxLength >= 3 ? Optional.of(new Move(best, mark)) : Optional.empty();
+        return best != null && maxLength > 3 ? Optional.of(new Move(best, mark)) : Optional.empty();
     }
 }

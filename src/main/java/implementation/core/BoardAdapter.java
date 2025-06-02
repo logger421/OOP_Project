@@ -38,7 +38,7 @@ public class BoardAdapter {
         long countX = 0, countO = 0;
         for (Move m : moves) {
             Position p = m.position();
-            if (!config.isPeriodic() && (p.row() < 0 || p.row() >= size || p.col() < 0 || p.col() >= size)) {
+            if (!config.isPeriodic() && (p.row() < 0 || p.row() > size || p.col() < 0 || p.col() > size)) {
                 throw new WrongBoardStateException();
             }
             if (m.mark() == Mark.CROSS) countX++;
@@ -47,8 +47,12 @@ public class BoardAdapter {
 
         if (Math.abs(countX - countO) > 1) throw new WrongBoardStateException();
 
-        if ((countX < countO && config.getFirstMark() == Mark.NOUGHT && currentMark == Mark.NOUGHT) ||
-                (countO < countX && config.getFirstMark() == Mark.CROSS && currentMark == Mark.CROSS)) {
+        if ((countX < countO && config.getFirstMark() == Mark.CROSS && currentMark == Mark.CROSS) ||
+                (countO < countX && config.getFirstMark() == Mark.CROSS && currentMark == Mark.NOUGHT)) {
+            throw new WrongBoardStateException();
+        }
+        if (countX == countO && (config.getFirstMark() == Mark.NOUGHT && currentMark == Mark.CROSS ||
+                config.getFirstMark() == Mark.CROSS && currentMark == Mark.NOUGHT)) {
             throw new WrongBoardStateException();
         }
     }

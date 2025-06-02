@@ -64,12 +64,6 @@ public class Board implements Cloneable {
         return false;
     }
 
-    public boolean isEndOpen(Position pos, int dx, int dy) {
-        int row = pos.row() + dx, col = pos.col() + dy;
-        if (row < 0 || row >= size || col < 0 || col >= size) return false;
-        return getMarkAt(row, col) == Mark.CROSS;
-    }
-
     public int countDirection(Position pos, Mark mark, int dx, int dy) {
         int row = pos.row();
         int col = pos.col();
@@ -90,7 +84,7 @@ public class Board implements Cloneable {
 
         return cnt;
     }
-
+    
     @Override
     public Board clone() {
         Board copy = new Board(size, periodic);
@@ -137,7 +131,7 @@ public class Board implements Cloneable {
         return sb.toString();
     }
 
-    private Mark getMarkAt(int row, int col) {
+    public Mark getMarkAt(int row, int col) {
         if (periodic) {
             row = (row + size) % size;
             col = (col + size) % size;
