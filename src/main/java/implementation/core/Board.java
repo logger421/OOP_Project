@@ -84,7 +84,52 @@ public class Board implements Cloneable {
 
         return cnt;
     }
-    
+
+    public boolean createsOpenFour(Position pos, Mark mark) {
+        Board sim = this.clone();
+        sim.placeMark(pos, mark);
+
+        for (int[] d : directions) {
+            int count = 1 + sim.countDirection(pos, mark, d[0], d[1]) + sim.countDirection(pos, mark, -d[0], -d[1]);
+
+            if (count == 4) {
+                int endRowFwd = pos.row() + d[0] * (sim.countDirection(pos, mark, d[0], d[1]) + 1);
+                int endColFwd = pos.col() + d[1] * (sim.countDirection(pos, mark, d[0], d[1]) + 1);
+                int endRowBwd = pos.row() - d[0] * (sim.countDirection(pos, mark, -d[0], -d[1]) + 1);
+                int endColBwd = pos.col() - d[1] * (sim.countDirection(pos, mark, -d[0], -d[1]) + 1);
+
+                if (periodic) {
+                    endRowFwd = (endRowFwd + size) % size;
+                    endColFwd = (endColFwd + size) % size;
+                    endRowBwd = (endRowBwd + size) % size;
+                    endColBwd = (endColBwd + size) % size;
+                } else {
+                    if (endRowFwd < 0 || endRowFwd >= size || endColFwd < 0 || endColFwd >= size) continue;
+                    if (endRowBwd < 0 || endRowBwd >= size || endColBwd < 0 || endColBwd >= size) continue;
+                }
+
+                if (getMarkAt(endRowFwd, endColFwd) == Mark.NULL && getMarkAt(endRowBwd, endColBwd) == Mark.NULL) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public int bestLine(Mark mark) {
+        int maxLen = 0;
+        for (Position pos : getEmptyPositions()) {
+            Board sim = this.clone();
+            sim.placeMark(pos, mark);
+
+            for (int[] d : Board.directions) {
+                int len = 1 + sim.countDirection(pos, mark, d[0], d[1]) + sim.countDirection(pos, mark, -d[0], -d[1]);
+                if (len > maxLen) maxLen = len;
+            }
+        }
+        return maxLen;
+    }
+
     @Override
     public Board clone() {
         Board copy = new Board(size, periodic);
