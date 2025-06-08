@@ -8,6 +8,7 @@ import implementation.config.BoardConfig;
 import implementation.core.Board;
 
 import java.util.Optional;
+import java.util.Set;
 
 public class ResignHandler extends MoveHandler {
     private final BoardConfig boardConfig = BoardConfig.getInstance();
@@ -18,50 +19,19 @@ public class ResignHandler extends MoveHandler {
 
     @Override
     protected Optional<Move> doHandle(Board board, Mark mark) throws ResignException {
+        System.out.println();
         Mark opponent = (mark == Mark.CROSS) ? Mark.NOUGHT : Mark.CROSS;
 
-        int opponentBest = board.bestLine(opponent);
-        int ourBest = board.bestLine(mark);
+        Set<Position> immediateThreats = board.findImmediateWinningPositions(opponent);
+        if (immediateThreats.size() > 1) throw new ResignException();
 
-        if (ourBest >= opponentBest && boardConfig.getFirstMark() == mark) {
-            return Optional.empty();
+        Set<Position> open4 = board.getOpenFourThreatPositions(opponent);
+        Set<Position> closed4 = board.getClosedFourThreatPositions(opponent);
+
+        if (!open4.isEmpty() || closed4.size() >= 2) {
+            throw new ResignException();
         }
 
-        for (Position myMove : board.getEmptyPositions()) {
-            Board simMyMove = board.clone();
-            simMyMove.placeMark(myMove, mark);
-
-            boolean safeMoveFound = true;
-
-            for (Position oppMove : simMyMove.getEmptyPositions()) {
-                Board simOppMove = simMyMove.clone();
-                simOppMove.placeMark(oppMove, opponent);
-
-                if (simOppMove.isWinningMove(oppMove, opponent)) {
-                    safeMoveFound = false;
-                    break;
-                }
-
-                int threats = 0;
-                for (Position next : simOppMove.getEmptyPositions()) {
-                    if (simOppMove.isWinningMove(next, opponent) || simOppMove.createsOpenFour(next, opponent)) {
-                        threats++;
-                    }
-                }
-
-                if (threats >= 2) {
-                    safeMoveFound = false;
-                    break;
-                }
-            }
-
-            if (safeMoveFound) {
-                return Optional.empty();
-            }
-        }
-
-        throw new ResignException();
+        return Optional.empty();
     }
-
-
 }

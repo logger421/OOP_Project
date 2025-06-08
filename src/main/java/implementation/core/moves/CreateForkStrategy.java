@@ -17,7 +17,7 @@ public class CreateForkStrategy implements MoveStrategy {
 
         for (Position position : board.getEmptyPositions()) {
             Board simulation = board.clone();
-            simulation.placeMark(position, mark);
+            simulation.placeMarkAt(position, mark);
 
             int forkLines = 0;
             int forkStrength = 0;

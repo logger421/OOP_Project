@@ -7,6 +7,7 @@ import implementation.config.BoardConfig;
 import implementation.core.Board;
 
 import java.util.Optional;
+import java.util.Set;
 
 public class BlockOpponentStrategy implements MoveStrategy {
     private final BoardConfig boardConfig = BoardConfig.getInstance();
@@ -15,35 +16,25 @@ public class BlockOpponentStrategy implements MoveStrategy {
     public Optional<Move> findMove(Board board, Mark mark) {
         Mark opponent = (mark == Mark.CROSS) ? Mark.NOUGHT : Mark.CROSS;
 
-        // Natychmiastowa blokada, jeśli przeciwnik wygrywa w następnym ruchu
-        for (Position pos : board.getEmptyPositions()) {
-            if (board.isWinningMove(pos, opponent)) {
-                return Optional.of(new Move(pos, mark));
+        Set<Position> immediateThreats = board.findImmediateWinningPositions(opponent);
+        if (immediateThreats.size() == 1) {
+            return Optional.of(new Move(immediateThreats.iterator().next(), mark));
+        } else if (immediateThreats.size() > 1) {
+            return Optional.empty();
+        }
+
+        var opponentOpenFour = board.getOpenFourThreatPositions(opponent);
+        var ourBest = board.bestLine(mark);
+        if (opponentOpenFour.size() == 1 && ourBest < 4) {
+            for (Position position : opponentOpenFour) {
+                return Optional.of(new Move(position, mark));
             }
         }
 
-        // Sprawdź potencjał przeciwnika (jeśli zaczął pierwszy lub jest bliżej wygranej niż my)
-        int opponentBest = board.bestLine(opponent);
-        int ourBest = board.bestLine(mark);
-
-        if (boardConfig.getFirstMark() == opponent || opponentBest > ourBest) {
-            for (Position pos : board.getEmptyPositions()) {
-                if (board.createsOpenFour(pos, opponent)) {
-                    return Optional.of(new Move(pos, mark));
-                }
-            }
-
-            for (Position pos : board.getEmptyPositions()) {
-                Board simulated = board.clone();
-                simulated.placeMark(pos, opponent);
-
-                int threats = 0;
-                for (Position next : simulated.getEmptyPositions()) {
-                    if (simulated.isWinningMove(next, opponent) || simulated.createsOpenFour(next, opponent)) threats++;
-                }
-                if (threats >= 2) {
-                    return Optional.of(new Move(pos, mark));
-                }
+        var closed4 = board.getClosedFourThreatPositions(opponent);
+        if (closed4.size() == 2 && ourBest < 3) {
+            for (Position position : closed4) {
+                return Optional.of(new Move(position, mark));
             }
         }
 

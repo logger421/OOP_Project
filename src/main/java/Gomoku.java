@@ -22,10 +22,10 @@ public class Gomoku implements Game {
         this.handlerChain = new HandlerChainBuilder()
                 .addWinnerCheck()
                 .addStrategy(new WinImmediatelyStrategy())
-                .addResignCheck()
                 .addStrategy(new BlockOpponentStrategy())
-                .addStrategy(new ExtendLineStrategy())
+                .addResignCheck()
                 .addStrategy(new CreateForkStrategy())
+                .addStrategy(new ExtendLineStrategy())
                 .addDefault()
                 .build();
     }

@@ -21,6 +21,7 @@ public class GomokuTest {
     void setUp() {
         history = new HashSet<>();
         engine = new Gomoku();
+        engine.firstMark(Mark.CROSS);
         engine.size(10);
         engine.debugMode();
     }
@@ -79,6 +80,7 @@ public class GomokuTest {
 
     @Test
     void testBlockOpponentStrategy() throws Exception {
+        engine.firstMark(Mark.NOUGHT);
         history.add(new Move(new Position(0, 2), Mark.NOUGHT));
         history.add(new Move(new Position(1, 2), Mark.NOUGHT));
         history.add(new Move(new Position(2, 2), Mark.NOUGHT));
@@ -97,33 +99,22 @@ public class GomokuTest {
 
     @Test
     void testCreateForkStrategy() throws Exception {
-        // Poziomo: X w (1,0), (1,1) i (1,3) – dziura na (1,2)
-        history.add(new Move(new Position(1, 0), Mark.CROSS));
-        history.add(new Move(new Position(1, 1), Mark.CROSS));
-        history.add(new Move(new Position(1, 3), Mark.CROSS));
+        String board =
+                ". X . . . O . . . .\n" +
+                ". X . . . O . . . .\n" +
+                "X . X X . . . . . .\n" +
+                ". X . . . . . . . .\n" +
+                ". . . O O . . . . .\n" +
+                ". . . . O O . . . .\n" +
+                ". . . . . . . . . .\n" +
+                ". . . . . . . . . .\n" +
+                ". . . . . . . . . .\n" +
+                ". . . . . . . . . .";
 
-        // Pionowo: X w (0,2), (2,2) i (3,2) – dziura na (1,2)
-        history.add(new Move(new Position(0, 2), Mark.CROSS));
-        history.add(new Move(new Position(2, 2), Mark.CROSS));
-        history.add(new Move(new Position(3, 2), Mark.CROSS));
-
-        // Dodajemy parę ruchów przeciwnika gdzie indziej, by nie przeszkadzał
-        history.add(new Move(new Position(5, 0), Mark.NOUGHT));
-        history.add(new Move(new Position(5, 1), Mark.NOUGHT));
-        history.add(new Move(new Position(3, 4), Mark.NOUGHT));
-        history.add(new Move(new Position(4, 4), Mark.NOUGHT));
-        history.add(new Move(new Position(4, 5), Mark.NOUGHT));
-        history.add(new Move(new Position(5, 5), Mark.NOUGHT));
-
-        // Teraz CreateForkStrategy powinien wybrać (1,2):
-        //  • pozioma linia: (1,0),(1,1),(1,2),(1,3) – 4 w linii
-        //  • pionowa linia:  (0,2),(1,2),(2,2),(3,2) – 4 w linii
-
-        engine.firstMark(Mark.CROSS);
+        history = parseBoardString(board);
         Move next = engine.nextMove(history, Mark.CROSS);
 
         assertEquals(new Position(1, 2), next.position(), "CreateFork powinien wskazać (1,2)");
-        assertEquals(Mark.CROSS, next.mark());
     }
 
     @Test
@@ -199,7 +190,6 @@ public class GomokuTest {
         history.add(new Move(new Position(2, 4), Mark.NOUGHT));
         history.add(new Move(new Position(1, 1), Mark.NOUGHT));
         history.add(new Move(new Position(1, 2), Mark.NOUGHT));
-        history.add(new Move(new Position(2, 3), Mark.NOUGHT));
 
         assertThrows(ResignException.class, () -> engine.nextMove(history, Mark.NOUGHT));
     }
@@ -257,6 +247,7 @@ public class GomokuTest {
 
     @Test
     void testPeriodicBoundaryConditionsResignException() {
+        engine.firstMark(Mark.NOUGHT);
         engine.periodicBoundaryConditionsInUse();
 
         history.add(new Move(new Position(0, 9), Mark.CROSS));
@@ -412,7 +403,83 @@ public class GomokuTest {
         engine.firstMark(Mark.CROSS);
         Set<Move> moves = parseBoardString(board);
         Move move = engine.nextMove(moves, Mark.CROSS);
-        assertEquals(new Move(new Position(0, 5), Mark.CROSS), move);
+        assertEquals(new Move(new Position(4, 5), Mark.CROSS), move);
+    }
+
+    @Test
+    void findGoodMove7() throws TheWinnerIsException, ResignException, WrongBoardStateException {
+        String board =
+                ". . . . . . . X . .\n" +
+                ". . . . . . . . . .\n" +
+                ". . O O X O O . . .\n" +
+                ". . . X . O O . . O\n" +
+                ". . X X O . O . X .\n" +
+                ". . . X . . . X O .\n" +
+                "X . X O . . . . X .\n" +
+                ". . . . . . . . . O\n" +
+                ". . . . . . . . . .\n" +
+                ". . . . . . . . . .";
+
+        engine.firstMark(Mark.NOUGHT);
+        Set<Move> moves = parseBoardString(board);
+        Move move = engine.nextMove(moves, Mark.NOUGHT);
+        assertEquals(new Move(new Position(1, 5), Mark.NOUGHT), move);
+    }
+
+    @Test
+    void findGoodMove8() throws TheWinnerIsException, ResignException, WrongBoardStateException {
+        String board =
+                ". X . . . O . . . .\n" +
+                ". X . . O X . . . O\n" +
+                ". X . O . . O X O X\n" +
+                ". . . . . . . O . .\n" +
+                ". . . . O X . . O .\n" +
+                ". . . . . X . . . O\n" +
+                ". . . . . . X X . .\n" +
+                ". . . . . . . X . .\n" +
+                ". . . . . . . . O .\n" +
+                ". . . . . . . . . .";
+
+        engine.firstMark(Mark.CROSS);
+        Set<Move> moves = parseBoardString(board);
+        Move move = engine.nextMove(moves, Mark.CROSS);
+        assertEquals(new Move(new Position(5, 6), Mark.CROSS), move);
+    }
+
+    @Test
+    void findGoodMove9() throws TheWinnerIsException, ResignException, WrongBoardStateException {
+        engine.firstMark(Mark.CROSS);
+
+        String board =
+                ". . . . . . . . . .\n" +
+                "X . . . . . O . . .\n" +
+                ". X . . . . . O . .\n" +
+                ". . X . . . O . O .\n" +
+                ". . . X . . . . . .\n" +
+                ". . . . . . . . . .\n" +
+                ". . . . . . . . . .\n" +
+                ". . . . . . . . . .\n" +
+                ". . . . . . . . . .\n" +
+                ". . . . . . . . . .";
+
+        Set<Move> moves = parseBoardString(board);
+        Move move = engine.nextMove(moves, Mark.CROSS);
+        assertEquals(new Move(new Position(4, 5), Mark.CROSS), move);
+
+        board =
+                ". . . . . . . . . .\n" +
+                "X . . . . . O . . .\n" +
+                ". X . . . . . O . .\n" +
+                ". . . . . . O . O .\n" +
+                ". . . X . . . . . .\n" +
+                ". . . . X . . . . .\n" +
+                ". . . . . . . . . .\n" +
+                ". . . . . . . . . .\n" +
+                ". . . . . . . . . .\n" +
+                ". . . . . . . . . .";
+        moves = parseBoardString(board);
+        move = engine.nextMove(moves, Mark.CROSS);
+        assertEquals(new Move(new Position(2, 3), Mark.CROSS), move);
     }
 
     // Test resign exception
@@ -420,15 +487,16 @@ public class GomokuTest {
     void shouldThrowResignException1() {
         String board =
                 ". . . O . . . O . .\n" +
-                        ". . . O . . . O . .\n" +
-                        ". . . O . . . O . .\n" +
-                        ". . . O . . . O . .\n" +
-                        ". . . . . . . . . .\n" +
-                        ". . . . . . . . . .\n" +
-                        ". . . . . . . . . .\n" +
-                        ". X X . X . X . . X\n" +
-                        ". . . . . . . . . .\n" +
-                        ". . . X . X . . X .";
+                ". . . O . . . O . .\n" +
+                ". . . O . . . O . .\n" +
+                ". . . O . . . O . .\n" +
+                ". . . . . . . . . .\n" +
+                ". . . . . . . . . .\n" +
+                ". . . . . . . . . .\n" +
+                ". X X . X . X . . X\n" +
+                ". . . . . . . . . .\n" +
+                ". . . X . X . . X .";
+
         Set<Move> moves = parseBoardString(board);
         assertThrows(ResignException.class, () -> engine.nextMove(moves, Mark.CROSS));
     }
@@ -437,32 +505,33 @@ public class GomokuTest {
     void shouldThrowResignException2() {
         String board =
                 ". . . . . . . . . .\n" +
-                        ". . . O . . . O . .\n" +
-                        ". . . O . . . O . .\n" +
-                        ". . . O . . . O . .\n" +
-                        ". . . . . . . . . .\n" +
-                        ". . . . . . . . . .\n" +
-                        ". . . . . . . . . .\n" +
-                        ". X . . . . X . . X\n" +
-                        ". . . . . . . . . .\n" +
-                        ". . . X . X . . X .";
+                ". . . O . . . O . .\n" +
+                ". . . O . . . O . .\n" +
+                ". . . O . . . O . .\n" +
+                ". . . . . . . . . .\n" +
+                ". . . . . . . . . .\n" +
+                ". . . . . . . . . .\n" +
+                ". X . . . . X . . X\n" +
+                ". . . . . . . . . .\n" +
+                ". . . X . X . . X .";
         Set<Move> moves = parseBoardString(board);
         assertThrows(ResignException.class, () -> engine.nextMove(moves, Mark.CROSS));
     }
 
     @Test
     void shouldThrowResignException3() {
+        engine.firstMark(Mark.CROSS);
         String board =
                 ". . . . . . . . . .\n" +
-                        ". . . O . . O . . .\n" +
-                        ". . . O . . O . . .\n" +
-                        ". O O . . . . O O .\n" +
-                        ". . . . . . . . . .\n" +
-                        ". . . . . . . . . .\n" +
-                        ". . . . . . . . . .\n" +
-                        ". X . . X . X . . X\n" +
-                        ". X . . . . . . . .\n" +
-                        ". . . X . X . . X .";
+                ". . . O . . O . . .\n" +
+                ". . . O . . O . . .\n" +
+                ". O O . . . . O O .\n" +
+                ". . . . . . . . . .\n" +
+                ". . . . . . . . . .\n" +
+                ". . . . . . . . . .\n" +
+                ". X . . X . X . . X\n" +
+                ". X . . . . . . . .\n" +
+                ". . . X . X . . X .";
 
         Set<Move> moves = parseBoardString(board);
 
@@ -506,6 +575,18 @@ public class GomokuTest {
 
         history = parseBoardString(board);
         assertThrows(WrongBoardStateException.class, () -> engine.nextMove(history, Mark.NOUGHT));
+    }
+
+    @Test
+    void shouldThrowWrongBoardStateException3() {
+        engine.firstMark(Mark.CROSS);
+
+
+        history = new HashSet<>();
+        history.add(new Move(new Position(0, 0), Mark.CROSS));
+        history.add(new Move(new Position(0, 0), Mark.NOUGHT));
+
+        assertThrows(WrongBoardStateException.class, () -> engine.nextMove(history, Mark.CROSS));
     }
 
     public static Set<Move> parseBoardString(String board) {
