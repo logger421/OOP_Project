@@ -8,10 +8,8 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-// 2x wrong board state exception
 // Gra nie przewiduje, że pierwsza wygra i broni się zamiast atakować
 // Gra w jednym przypadku próbuje się bronić/ randomowo coś rzuca zamiast się poddać
-//
 
 public class GomokuTest {
     private Gomoku engine;
@@ -375,8 +373,6 @@ public class GomokuTest {
 
     @Test
     void findGoodMove9() throws TheWinnerIsException, ResignException, WrongBoardStateException {
-        engine.firstMark(Mark.CROSS);
-
         String board =
                 ". . . . . . . . . .\n" +
                 "X . . . . . O . . .\n" +
@@ -388,9 +384,10 @@ public class GomokuTest {
                 ". . . . . . . . . .\n" +
                 ". . . . . . . . . .\n" +
                 ". . . . . . . . . .";
-
         history = parseBoardString(board);
+
         Move move = engine.nextMove(history, Mark.CROSS);
+
         assertEquals(new Move(new Position(4, 5), Mark.CROSS), move);
 
         board =
@@ -405,7 +402,9 @@ public class GomokuTest {
                 ". . . . . . . . . .\n" +
                 ". . . . . . . . . .";
         history = parseBoardString(board);
+
         move = engine.nextMove(history, Mark.CROSS);
+
         assertEquals(new Move(new Position(2, 3), Mark.CROSS), move);
     }
 
@@ -462,10 +461,10 @@ public class GomokuTest {
                 ". . . . . . . . . .\n" +
                 ". . . . . . . . . .\n" +
                 ". . . . . . . . . .";
-
-        engine.firstMark(Mark.CROSS);
         history = parseBoardString(board);
+
         Move move = engine.nextMove(history, Mark.CROSS);
+
         assertEquals(new Move(new Position(6, 3), Mark.CROSS), move);
     }
 
@@ -535,8 +534,31 @@ public class GomokuTest {
         assertEquals(Mark.CROSS, next.mark());
     }
 
-    // Scenarios testing the ResignException
+    @Test
+    void findGoodMove16() throws Exception {
+        String board =
+                "X . O . . . . . . .\n" +
+                "X . O . . . . . . .\n" +
+                "X . O . . . . . . .\n" +
+                ". . O . . . . . . .\n" +
+                ". . . . . . . . . .\n" +
+                ". . . . . . . . . .\n" +
+                ". . . . . . . . . .\n" +
+                ". . . . . . . . . .\n" +
+                ". . . . . . . . . .\n" +
+                ". . . . . . . . . .";
 
+        // teraz X powinien dołożyć na (0,4) i wygrać
+        history = parseBoardString(board);
+        engine.firstMark(Mark.NOUGHT);
+        Move next = engine.nextMove(history, Mark.CROSS);
+
+        assertEquals(new Position(2, 4), next.position());
+        assertEquals(Mark.CROSS, next.mark());
+    }
+
+
+    // Scenarios testing the ResignException
     @Test
     void shouldThrowResignException0() {
         String board =
@@ -647,6 +669,27 @@ public class GomokuTest {
         history = parseBoardString(board);
 
         assertThrows(ResignException.class, () -> engine.nextMove(history, Mark.NOUGHT));
+    }
+
+    @Test
+    void shouldThrowResignException6() {
+        String board =
+                ". . . . . . . . . .\n" +
+                        "X . O . . . . . . .\n" +
+                        "X . O . . . . . . .\n" +
+                        "X . O . . . . . . .\n" +
+                        ". . O . . . . . . .\n" +
+                        ". . . . . . . . . .\n" +
+                        ". . . . . . . . . .\n" +
+                        ". . . . . . . . . .\n" +
+                        ". . . . . . . . . .\n" +
+                        ". . . . . . . . . .";
+
+        // teraz X powinien dołożyć na (0,4) i wygrać
+        history = parseBoardString(board);
+        engine.firstMark(Mark.NOUGHT);
+
+        assertThrows(ResignException.class, () -> engine.nextMove(history, Mark.CROSS));
     }
 
     // Wrong Board State Exception

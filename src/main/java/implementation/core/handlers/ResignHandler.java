@@ -4,14 +4,12 @@ import fais.zti.oramus.gomoku.Mark;
 import fais.zti.oramus.gomoku.Move;
 import fais.zti.oramus.gomoku.Position;
 import fais.zti.oramus.gomoku.ResignException;
-import implementation.config.BoardConfig;
 import implementation.core.Board;
 
 import java.util.Optional;
 import java.util.Set;
 
 public class ResignHandler extends MoveHandler {
-    private final BoardConfig boardConfig = BoardConfig.getInstance();
 
     public ResignHandler(MoveHandler next) {
         super(next);
@@ -19,19 +17,38 @@ public class ResignHandler extends MoveHandler {
 
     @Override
     protected Optional<Move> doHandle(Board board, Mark mark) throws ResignException {
-        System.out.println();
-        Mark opponent = (mark == Mark.CROSS) ? Mark.NOUGHT : Mark.CROSS;
+        Mark opponent = board.getOpponentMark();
 
-        Set<Position> immediateThreats = board.findImmediateWinningPositions(opponent);
+        Set<Position> immediateThreats = board.getOpponentImmediateWinningPositions();
         if (immediateThreats.size() > 1) throw new ResignException();
 
-        Set<Position> open4 = board.getOpenFourThreatPositions(opponent);
-        Set<Position> closed4 = board.getClosedFourThreatPositions(opponent);
+        var ourPossibleBestLine = board.getPossibleLineLength();
 
-        if (!open4.isEmpty() || closed4.size() >= 2) {
+        var opponentClosed4 = board.countUniqueClosedLines(opponent, 4);
+        if (opponentClosed4 >= 2 && ourPossibleBestLine < 4) throw new ResignException();
+
+        var opponentOpen3 = board.countUniqueOpenLines(opponent, 3);
+        if (opponentOpen3 > 2 && ourPossibleBestLine < 3) throw new ResignException();
+
+        var opponentClosed3 = board.countUniqueClosedLines(opponent, 3);
+        if (opponentClosed3 >= 4 && ourPossibleBestLine < 3) throw new ResignException();
+
+        Set<Position> opponentPossibleOpen4 = board.getOpenFourThreatPositions(opponent);
+        Set<Position> opponentPossibleClosed4 = board.getClosedFourThreatPositions(opponent);
+
+        if ((!opponentPossibleOpen4.isEmpty() || opponentPossibleClosed4.size() >= 2) && ourPossibleBestLine < 4) {
             throw new ResignException();
         }
 
+        Set<Position> opponentPossibleOpen3 = board.getOpenThreeThreatPositions(opponent);
+
+        if (opponentPossibleOpen3.size() >= 2 && ourPossibleBestLine < 3) {
+            throw new ResignException();
+        }
+
+        if (opponentOpen3 >= 2 && ourPossibleBestLine < 3) throw new ResignException();
+
         return Optional.empty();
     }
+
 }

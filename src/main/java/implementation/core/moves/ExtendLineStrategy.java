@@ -5,7 +5,6 @@ import fais.zti.oramus.gomoku.Move;
 import fais.zti.oramus.gomoku.Position;
 import implementation.core.Board;
 
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -17,7 +16,7 @@ public class ExtendLineStrategy implements MoveStrategy {
         int maxLength = 0;
 
         Set<Position> open4 = board.getOpenFourThreatPositions(mark);
-        if(!open4.isEmpty()) {
+        if (!open4.isEmpty()) {
             Position position = open4.iterator().next();
             return Optional.of(new Move(position, mark));
         }
