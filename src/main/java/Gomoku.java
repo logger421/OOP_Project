@@ -5,7 +5,6 @@ import implementation.core.BoardAdapter;
 import implementation.core.HandlerChainBuilder;
 import implementation.core.handlers.MoveHandler;
 import implementation.core.moves.BlockOpponentStrategy;
-import implementation.core.moves.CreateForkStrategy;
 import implementation.core.moves.ExtendLineStrategy;
 import implementation.core.moves.WinImmediatelyStrategy;
 
@@ -24,7 +23,6 @@ public class Gomoku implements Game {
                 .addStrategy(new WinImmediatelyStrategy())
                 .addStrategy(new BlockOpponentStrategy())
                 .addResignCheck()
-                .addStrategy(new CreateForkStrategy())
                 .addStrategy(new ExtendLineStrategy())
                 .addDefault()
                 .build();

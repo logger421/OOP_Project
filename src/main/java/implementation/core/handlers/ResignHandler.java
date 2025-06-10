@@ -41,8 +41,17 @@ public class ResignHandler extends MoveHandler {
         }
 
         Set<Position> opponentPossibleOpen3 = board.getOpenThreeThreatPositions(opponent);
-
-        if (opponentPossibleOpen3.size() >= 2 && ourPossibleBestLine < 3) {
+        int opponentBestOpen3Counter = 0;
+        if (!opponentPossibleOpen3.isEmpty()) {
+            for (Position position : opponentPossibleOpen3) {
+                int current = board.countPotentialLinesFormed(position, opponent, 3);
+                if (current > opponentBestOpen3Counter) {
+                    opponentBestOpen3Counter = current;
+                }
+            }
+        }
+        var opponentUniqueOpenLines2 = board.countUniqueOpenLines(opponent, 2);
+        if (opponentBestOpen3Counter >= 2 && ourPossibleBestLine <= 3 && opponentUniqueOpenLines2 >= 4) {
             throw new ResignException();
         }
 

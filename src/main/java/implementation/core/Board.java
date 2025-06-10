@@ -19,6 +19,7 @@ public class Board implements Cloneable {
     private final Mark[][] grid;
 
     private int possibleLineLength;
+    private int opponentPossibleLineLength;
     private Set<Position> immediateWinningPositions;
     private Set<Position> opponentImmediateWinningPositions;
 
@@ -43,6 +44,7 @@ public class Board implements Cloneable {
         immediateWinningPositions = findImmediateWinningPositions(ourMark);
         opponentImmediateWinningPositions = findImmediateWinningPositions(opponentMark);
         possibleLineLength = bestLine(ourMark, true);
+        opponentPossibleLineLength = bestLine(opponentMark, true);
     }
 
     @Override
@@ -135,6 +137,10 @@ public class Board implements Cloneable {
 
     public int getPossibleLineLength() {
         return possibleLineLength;
+    }
+
+    public int getOpponentPossibleLineLength() {
+        return opponentPossibleLineLength;
     }
 
     public boolean isWinningMove(Position pos, Mark mark) {
@@ -351,6 +357,41 @@ public class Board implements Cloneable {
         boolean openF = isWithinBounds(endF) && sim.getMarkAt(endF) == Mark.NULL;
         boolean openB = isWithinBounds(endB) && sim.getMarkAt(endB) == Mark.NULL;
         return openF ^ openB;
+    }
+
+    public int countPotentialLinesFormed(Position position, Mark mark, int length) {
+        if (getMarkAt(position) != Mark.NULL) {
+            return 0;
+        }
+        placeMarkAt(position, mark);
+
+        int lineCount = 0;
+        for (int[] dir : DIRECTIONS) {
+            int totalMarks = 1;
+            totalMarks += countConsecutiveMarks(position, dir[0], dir[1], mark);
+            totalMarks += countConsecutiveMarks(position, -dir[0], -dir[1], mark);
+            if (totalMarks == length) {
+                lineCount++;
+            }
+        }
+
+        placeMarkAt(position, Mark.NULL);
+
+        return lineCount;
+    }
+
+    private int countConsecutiveMarks(Position start, int rowDelta, int colDelta, Mark mark) {
+        int count = 0;
+        int row = start.row() + rowDelta;
+        int col = start.col() + colDelta;
+
+        while (row >= 0 && row < size && col >= 0 && col < size && getMarkAt(row, col) == mark) {
+            count++;
+            row += rowDelta;
+            col += colDelta;
+        }
+
+        return count;
     }
 
     private boolean isWithinBounds(Position p) {

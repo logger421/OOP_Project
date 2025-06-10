@@ -21,12 +21,46 @@ public class ExtendLineStrategy implements MoveStrategy {
             return Optional.of(new Move(position, mark));
         }
 
-        Set<Position> closed4 = board.getClosedFourThreatPositions(mark);
-        if (!closed4.isEmpty()) {
-            Position position = closed4.iterator().next();
-            return Optional.of(new Move(position, mark));
+        Set<Position> ourPossibleClosed4 = board.getClosedFourThreatPositions(mark);
+
+        int ourBestClosed4Counter = 0;
+        Position ourBestClosed4Position = null;
+        if (!ourPossibleClosed4.isEmpty()) {
+            for (Position position : ourPossibleClosed4) {
+                int current = board.countPotentialLinesFormed(position, mark, 4);
+                if (current > ourBestClosed4Counter) {
+                    ourBestClosed4Counter = current;
+                    ourBestClosed4Position = position;
+                }
+            }
         }
 
+        if (ourBestClosed4Counter >= 2) {
+            return Optional.of(new Move(ourBestClosed4Position, mark));
+        }
+
+        Set<Position> ourPossibleOpen3 = board.getOpenThreeThreatPositions(mark);
+
+        int ourBestOpen3Counter = 0;
+        Position ourBestOpen3Position = null;
+        if (!ourPossibleOpen3.isEmpty()) {
+            for (Position position : ourPossibleOpen3) {
+                int current = board.countPotentialLinesFormed(position, mark, 3);
+                if (current > ourBestOpen3Counter) {
+                    ourBestOpen3Counter = current;
+                    ourBestOpen3Position = position;
+                }
+            }
+        }
+
+        if (ourBestClosed4Counter > 0 && ourBestOpen3Counter >= 2) {
+            return Optional.of(new Move(ourBestOpen3Position, mark));
+        }
+        if (ourBestClosed4Counter == 0 && ourBestOpen3Counter > 0) {
+            return Optional.of(new Move(ourBestOpen3Position, mark));
+        }
+
+        // randomly find the best position to extend a line
         for (Position position : board.getEmptyPositions()) {
             Board sim = board.clone();
             sim.placeMarkAt(position, mark);

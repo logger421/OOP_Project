@@ -54,8 +54,9 @@ public class BoardAdapter {
         }
         if (Math.abs(countX - countO) > 1)
             throw new WrongBoardStateException();
-        if ((countX < countO && config.getFirstMark() == currentMark && currentMark == Mark.CROSS) ||
-                (countO < countX && config.getFirstMark() == currentMark && currentMark == Mark.NOUGHT)) {
+
+        if ((countX < countO && config.getFirstMark() == Mark.CROSS && currentMark == Mark.CROSS) ||
+                (countO < countX && config.getFirstMark() == Mark.NOUGHT && currentMark == Mark.NOUGHT)) {
             throw new WrongBoardStateException();
         }
         if (countX == countO && (config.getFirstMark() == Mark.NOUGHT && currentMark == Mark.CROSS ||
