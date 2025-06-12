@@ -12,7 +12,6 @@ public class BlockTwoPossibleThreesStrategy implements MoveStrategy {
 
     @Override
     public Optional<Move> findMove(Board board, Mark mark) {
-        introduce(mark);
         Mark opponent = board.getOpponentMark();
         Set<Position> openThreeThreatPositions = board.getOpenThreeThreatPositions(opponent);
 

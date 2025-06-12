@@ -15,9 +15,6 @@ public class WinnerCheckHandler extends MoveHandler {
 
     @Override
     protected Optional<Move> doHandle(Board board, Mark mark) throws TheWinnerIsException {
-        if(config.isDebug())
-            System.out.println("Checking for winner in handler: " + this.getClass().getSimpleName());
-
         if (board.hasAlreadyWon(Mark.CROSS) || board.hasAlreadyWon(Mark.NOUGHT)) throw new TheWinnerIsException(mark);
         return Optional.empty();
     }

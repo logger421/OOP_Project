@@ -11,7 +11,6 @@ public class ExtendLineStrategy implements MoveStrategy {
 
     @Override
     public Optional<Move> findMove(Board board, Mark mark) {
-        introduce(mark);
         Position best = null;
         int maxLength = 0;
 

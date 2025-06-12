@@ -12,7 +12,6 @@ import java.util.Set;
 public class ResignWhenTwoThreesPossibleStrategy implements MoveStrategy {
     @Override
     public Optional<Move> findMove(Board board, Mark mark) throws ResignException {
-        introduce(mark);
         Set<Position> openThreeThreatPositions = board.getOpenThreeThreatPositions(board.getOpponentMark());
 
         int maxOpenThreeCounter = 0;

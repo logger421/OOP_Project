@@ -18,4 +18,9 @@ public interface MoveStrategy {
         if (config.isDebug())
             System.out.println("Handling move for mark: " + mark + ", in handler: " + this.getClass().getSimpleName());
     }
+
+    default void printExit() {
+        if (config.isDebug())
+            System.out.println("Finalizing move strategy: " + this.getClass().getSimpleName());
+    }
 }

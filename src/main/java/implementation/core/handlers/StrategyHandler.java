@@ -18,6 +18,9 @@ public class StrategyHandler extends MoveHandler {
 
     @Override
     protected Optional<Move> doHandle(Board board, Mark mark) throws ResignException {
-        return strategy.findMove(board, mark);
+        strategy.introduce(mark);
+        Optional<Move> move = strategy.findMove(board, mark);
+        strategy.printExit();
+        return move;
     }
 }

@@ -12,18 +12,29 @@ import java.util.Set;
 public class ResignWhenTwoOpenFoursPossibleStrategy implements MoveStrategy {
     @Override
     public Optional<Move> findMove(Board board, Mark mark) throws ResignException {
-        introduce(mark);
-        Set<Position> openFourThreatPositions = board.getOpenFourThreatPositions(board.getOpponentMark());
+        Mark opponent = board.getOpponentMark();
+        Set<Position> openFourThreatPositions = board.getOpenFourThreatPositions(opponent);
 
         int openFourCounter = 0;
         if (!openFourThreatPositions.isEmpty()) {
             for (Position position : openFourThreatPositions) {
-                openFourCounter += board.countPotentialOpenLinesFormed(position, board.getOpponentMark(), 4);
+                openFourCounter += board.countPotentialOpenLinesFormed(position, opponent, 4);
             }
         }
 
-        int uniqueOpenFourCounter = board.countUniqueOpenLines(board.getOpponentMark(), 3);
-        if (openFourThreatPositions.size() >= 2 && openFourCounter >= 2 && uniqueOpenFourCounter >= 2) throw new ResignException();
+        int possibleOpen4Counter = 0;
+        if (!openFourThreatPositions.isEmpty()) {
+            for (Position position : openFourThreatPositions) {
+                board.placeMarkAt(position, opponent);
+                possibleOpen4Counter += board.countUniqueOpenLines(opponent, 4);
+                board.placeMarkAt(position, Mark.NULL);
+            }
+        }
+
+        int uniqueOpenThreeCounter = board.countUniqueOpenLines(board.getOpponentMark(), 3);
+        if (openFourThreatPositions.size() >= 2 && openFourCounter > 1 && uniqueOpenThreeCounter > 1)
+            throw new ResignException();
+        if (openFourCounter > 1 && possibleOpen4Counter > 2) throw new ResignException();
 
         return Optional.empty();
     }

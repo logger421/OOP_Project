@@ -617,6 +617,50 @@ public class GomokuTest {
     }
 
     @Test
+    void findGoodMove19() throws Exception {
+        String board =
+                ". . . . . . . . . .\n" +
+                ". O . . . . . . . .\n" +
+                ". O . . . . O O . .\n" +
+                ". O . . . O . . . .\n" +
+                ". . . . . O . . . X\n" +
+                ". X . . . . . . . .\n" +
+                ". . . . . . . . . .\n" +
+                ". . . . . . . . X .\n" +
+                ". . . . . . . . . .\n" +
+                ". X . X . X . X . .";
+
+        history = parseBoardString(board);
+        engine.firstMark(Mark.NOUGHT);
+
+        Move next = engine.nextMove(history, Mark.NOUGHT);
+
+        assertEquals(new Position(5, 2), next.position());
+    }
+
+    @Test
+    void findGoodMove20() throws Exception {
+        String board =
+                ". O . . . . . . . .\n" +
+                ". O . . . . . . . .\n" +
+                ". . . . . . O O . .\n" +
+                ". O . . . O . . . .\n" +
+                ". . . . . O . . . X\n" +
+                ". . . . . . . . . .\n" +
+                ". . . . . . . . . .\n" +
+                ". . . . . . . . X .\n" +
+                ". . . . . . . . . .\n" +
+                ". X . X . X . X . .";
+
+        history = parseBoardString(board);
+        engine.firstMark(Mark.NOUGHT);
+
+        Move next = engine.nextMove(history, Mark.NOUGHT);
+
+        assertEquals(new Position(5, 2), next.position());
+    }
+
+    @Test
     void findGoodPeriodicMove0() throws Exception {
         String board =
                 ". . . . X . . . . .\n" +
@@ -976,6 +1020,67 @@ public class GomokuTest {
 
         assertThrows(ResignException.class, () -> engine.nextMove(history, Mark.CROSS));
     }
+
+    @Test
+    void shouldThrowResignException10() {
+        engine.firstMark(Mark.NOUGHT);
+        String board =
+                ". . . . . . . . . .\n" +
+                ". . . . . . . . . .\n" +
+                ". . O O O . O . . .\n" +
+                ". . . . . . . . . .\n" +
+                ". . . . . . . . . .\n" +
+                ". . . . . . O O O O\n" +
+                ". . . . . . . . . .\n" +
+                ". . . . . . . . . .\n" +
+                "X . . X . . X . . .\n" +
+                "X . . X . . X . . X";
+
+        history = parseBoardString(board);
+
+        assertThrows(ResignException.class, () -> engine.nextMove(history, Mark.CROSS));
+    }
+
+        @Test
+    void shouldThrowResignException11() {
+        engine.firstMark(Mark.NOUGHT);
+        String board =
+                ". . . . O O O . . .\n" +
+                ". . . . . . . . . .\n" +
+                ". . . . . . . . O .\n" +
+                ". . . . . . . . O .\n" +
+                ". . . . . . . . . .\n" +
+                ". . . . . . . . O .\n" +
+                ". . . . . . . . . .\n" +
+                ". . . . . . . . . .\n" +
+                "X . . X . . . . . .\n" +
+                "X . . X . X . . . .";
+
+        history = parseBoardString(board);
+
+        assertThrows(ResignException.class, () -> engine.nextMove(history, Mark.CROSS));
+    }
+
+    @Test
+    void shouldThrowResignException12() {
+        engine.firstMark(Mark.NOUGHT);
+        String board =
+                ". . . . . . . . . .\n" +
+                ". . . . O . . . . .\n" +
+                ". . . . O . . . . .\n" +
+                ". . . . . O O . O .\n" +
+                ". . . . . . . O . .\n" +
+                ". . . . . O O . . .\n" +
+                ". . . . . . . . . .\n" +
+                ". . . . . . . . . .\n" +
+                "X . . X . . X . . .\n" +
+                "X . . X . . X . . X";
+
+        history = parseBoardString(board);
+
+        assertThrows(ResignException.class, () -> engine.nextMove(history, Mark.CROSS));
+    }
+
     // Wrong Board State Exception
 
     @Test

@@ -22,14 +22,10 @@ public abstract class MoveHandler {
         Optional<Move> result = doHandle(board, mark);
 
         if (result.isPresent()) {
-            if (config.isDebug())
-                System.out.println("Move found in handler: " + this.getClass().getCanonicalName() + ", move: " + result.get());
             return result;
         }
 
         if (next != null) {
-            if (config.isDebug())
-                System.out.println("No move found in handler: " + this.getClass().getSimpleName() + ", passing to next handler");
             return next.handle(board, mark);
         }
         return Optional.empty();

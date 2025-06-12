@@ -10,8 +10,6 @@ import java.util.Optional;
 public class ResignWhenTwoThreesPresentStrategy implements MoveStrategy {
     @Override
     public Optional<Move> findMove(Board board, Mark mark) throws ResignException {
-        introduce(mark);
-
         return Optional.empty();
     }
 }

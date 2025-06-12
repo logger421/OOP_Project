@@ -12,7 +12,6 @@ public class FindOpenFourStrategy implements MoveStrategy {
 
     @Override
     public Optional<Move> findMove(Board board, Mark mark) {
-        introduce(mark);
         Set<Position> open4 = board.getOpenFourThreatPositions(mark);
         if (!open4.isEmpty()) {
             Position position = open4.iterator().next();
