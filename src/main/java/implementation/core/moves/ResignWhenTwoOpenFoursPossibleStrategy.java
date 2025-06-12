@@ -12,6 +12,7 @@ import java.util.Set;
 public class ResignWhenTwoOpenFoursPossibleStrategy implements MoveStrategy {
     @Override
     public Optional<Move> findMove(Board board, Mark mark) throws ResignException {
+        introduce(mark);
         Set<Position> openFourThreatPositions = board.getOpenFourThreatPositions(board.getOpponentMark());
 
         int openFourCounter = 0;
@@ -22,12 +23,8 @@ public class ResignWhenTwoOpenFoursPossibleStrategy implements MoveStrategy {
         }
 
         int uniqueOpenFourCounter = board.countUniqueOpenLines(board.getOpponentMark(), 3);
-        if (openFourThreatPositions.size() >= 2 && openFourCounter >= 2 && uniqueOpenFourCounter >= 2) {
-            System.out.println("End of ResignWhenTwoOpenFoursPossibleStrategy0\n");
-            throw new ResignException();
-        }
+        if (openFourThreatPositions.size() >= 2 && openFourCounter >= 2 && uniqueOpenFourCounter >= 2) throw new ResignException();
 
-        System.out.println("End of ResignWhenTwoOpenFoursPossibleStrategy\n");
         return Optional.empty();
     }
 }

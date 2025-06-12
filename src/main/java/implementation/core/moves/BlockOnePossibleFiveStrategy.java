@@ -12,10 +12,9 @@ public class BlockOnePossibleFiveStrategy implements MoveStrategy {
 
     @Override
     public Optional<Move> findMove(Board board, Mark mark) {
+        introduce(mark);
         Set<Position> immediateThreats = board.getOpponentImmediateWinningPositions();
-        if (immediateThreats.size() == 1)
-            return Optional.of(new Move(immediateThreats.iterator().next(), mark));
-        System.out.println("End of BlockOnePossibleFiveStrategy\n");
+        if (immediateThreats.size() == 1) return Optional.of(new Move(immediateThreats.iterator().next(), mark));
         return Optional.empty();
     }
 }

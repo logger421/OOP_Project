@@ -12,6 +12,7 @@ public class BlockTwoPossibleThreesStrategy implements MoveStrategy {
 
     @Override
     public Optional<Move> findMove(Board board, Mark mark) {
+        introduce(mark);
         Mark opponent = board.getOpponentMark();
         Set<Position> openThreeThreatPositions = board.getOpenThreeThreatPositions(opponent);
 
@@ -29,11 +30,9 @@ public class BlockTwoPossibleThreesStrategy implements MoveStrategy {
         }
 
         if (openThreeCounter >= 2) {
-            System.out.println("End of BlockTwoPossibleThreesStrategy0\n");
             return Optional.of(new Move(bestPosition, mark));
         }
 
-        System.out.println("End of BlockTwoPossibleThreesStrategy\n");
         return Optional.empty();
     }
 }

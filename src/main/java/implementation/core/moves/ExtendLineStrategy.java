@@ -11,6 +11,7 @@ public class ExtendLineStrategy implements MoveStrategy {
 
     @Override
     public Optional<Move> findMove(Board board, Mark mark) {
+        introduce(mark);
         Position best = null;
         int maxLength = 0;
 
@@ -32,7 +33,6 @@ public class ExtendLineStrategy implements MoveStrategy {
             }
         }
 
-        System.out.println("Best position to extend line: " + best + " with length " + maxLength + "\n");
         return best != null && maxLength > 3 ? Optional.of(new Move(best, mark)) : Optional.empty();
     }
 }

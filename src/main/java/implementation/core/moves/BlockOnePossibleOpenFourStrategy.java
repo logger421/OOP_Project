@@ -12,6 +12,7 @@ public class BlockOnePossibleOpenFourStrategy implements MoveStrategy {
 
     @Override
     public Optional<Move> findMove(Board board, Mark mark) {
+        introduce(mark);
         Mark opponent = board.getOpponentMark();
         Set<Position> openFourThreatPositions = board.getOpenFourThreatPositions(opponent);
 
@@ -28,26 +29,18 @@ public class BlockOnePossibleOpenFourStrategy implements MoveStrategy {
         }
 
         Set<Position> openThreeThreatPositions = board.getOpenThreeThreatPositions(board.getOpponentMark());
-        System.out.println("openThreeThreatPositions: " + openThreeThreatPositions);
-
         int openThreeCounter = 0;
         if (!openThreeThreatPositions.isEmpty()) {
             for (Position position : openThreeThreatPositions) {
                 int current = board.countPotentialOpenLinesFormed(position, board.getOpponentMark(), 3);
-                if( current > openThreeCounter) {
+                if (current > openThreeCounter) {
                     openThreeCounter = current;
                 }
             }
         }
 
-        if(openThreeCounter > 1 && openFourCounter != 0)
-            return Optional.empty();
-
-        if (openFourCounter == 1) {
-            return Optional.of(new Move(best, mark));
-        }
-
-        System.out.println("End of BlockOnePossibleOpenFourStrategy\n");
+        if (openThreeCounter > 1 && openFourCounter != 0) return Optional.empty();
+        if (openFourCounter == 1) return Optional.of(new Move(best, mark));
         return Optional.empty();
     }
 }

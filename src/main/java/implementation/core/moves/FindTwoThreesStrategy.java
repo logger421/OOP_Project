@@ -12,8 +12,8 @@ public class FindTwoThreesStrategy implements MoveStrategy {
 
     @Override
     public Optional<Move> findMove(Board board, Mark mark) {
+        introduce(mark);
         Set<Position> ourPossibleOpen3 = board.getOpenThreeThreatPositions(mark);
-
         int ourBestOpen3Counter = 0;
         Position ourBestOpen3Position = null;
         if (!ourPossibleOpen3.isEmpty()) {
@@ -26,12 +26,10 @@ public class FindTwoThreesStrategy implements MoveStrategy {
             }
         }
 
-        if(ourBestOpen3Counter >= 2) {
-            System.out.println("End of FindTwoThreesStrategy0\n");
+        if (ourBestOpen3Counter >= 2) {
             return Optional.of(new Move(ourBestOpen3Position, mark));
         }
 
-        System.out.println("End of FindTwoThreesStrategy\n");
-        return  Optional.empty();
+        return Optional.empty();
     }
 }
