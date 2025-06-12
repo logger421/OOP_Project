@@ -18,8 +18,6 @@ public class Board implements Cloneable {
     private final boolean periodic;
     private final Mark[][] grid;
 
-    private int possibleLineLength;
-    private int opponentPossibleLineLength;
     private Set<Position> immediateWinningPositions;
     private Set<Position> opponentImmediateWinningPositions;
 
@@ -43,8 +41,6 @@ public class Board implements Cloneable {
 
         immediateWinningPositions = findImmediateWinningPositions(ourMark);
         opponentImmediateWinningPositions = findImmediateWinningPositions(opponentMark);
-        possibleLineLength = bestLine(ourMark, true);
-        opponentPossibleLineLength = bestLine(opponentMark, true);
     }
 
     @Override
@@ -135,14 +131,6 @@ public class Board implements Cloneable {
         return immediateWinningPositions;
     }
 
-    public int getPossibleLineLength() {
-        return possibleLineLength;
-    }
-
-    public int getOpponentPossibleLineLength() {
-        return opponentPossibleLineLength;
-    }
-
     public boolean isWinningMove(Position pos, Mark mark) {
         for (int[] direction : DIRECTIONS) {
             int count = 1;
@@ -190,40 +178,11 @@ public class Board implements Cloneable {
         return cnt;
     }
 
-    public int bestLine(Mark mark, boolean simulate) {
-        int maxLen = 0;
-        for (Position pos : getEmptyPositions()) {
-            Board sim = this.clone();
-            if (simulate) sim.placeMarkAt(pos, mark);
-
-            for (int[] d : Board.DIRECTIONS) {
-                int len = 1;
-                len += sim.countDirection(pos, mark, d[0], d[1]);
-                len += sim.countDirection(pos, mark, -d[0], -d[1]);
-                if (len > maxLen) maxLen = len;
-            }
-        }
-        return maxLen;
-    }
-
     public Set<Position> getOpenFourThreatPositions(Mark mark) {
         Set<Position> threats = new HashSet<>();
         for (Position pos : getEmptyPositions()) {
             for (int[] d : DIRECTIONS) {
                 if (createsLineWithOpenEnds(pos, mark, 4, d[0], d[1])) {
-                    threats.add(pos);
-                    break;
-                }
-            }
-        }
-        return threats;
-    }
-
-    public Set<Position> getClosedFourThreatPositions(Mark mark) {
-        Set<Position> threats = new HashSet<>();
-        for (Position pos : getEmptyPositions()) {
-            for (int[] d : DIRECTIONS) {
-                if (createsLineWithOneOpenEnd(pos, mark, 4, d[0], d[1])) {
                     threats.add(pos);
                     break;
                 }
@@ -250,30 +209,24 @@ public class Board implements Cloneable {
 
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
+                Position startPos = new Position(col, row);
+                if (getMarkAt(startPos) != mark) continue;
                 for (int[] dir : DIRECTIONS) {
-                    int endRow = row + (length - 1) * dir[0];
-                    int endCol = col + (length - 1) * dir[1];
-
-                    if (endRow < 0 || endRow >= size || endCol < 0 || endCol >= size) continue;
-
-                    int beforeRow = row - dir[0];
-                    int beforeCol = col - dir[1];
-                    int afterRow = endRow + dir[0];
-                    int afterCol = endCol + dir[1];
-
-                    boolean startOpen = beforeRow < 0 || beforeRow >= size || beforeCol < 0 || beforeCol >= size
-                            || getMarkAt(beforeRow, beforeCol) == Mark.NULL;
-                    boolean endOpen = afterRow < 0 || afterRow >= size || afterCol < 0 || afterCol >= size
-                            || getMarkAt(afterRow, afterCol) == Mark.NULL;
-
-                    if (!startOpen || !endOpen) continue;
+                    if (!periodic) {
+                        int endRow = row + (length - 1) * dir[0];
+                        int endCol = col + (length - 1) * dir[1];
+                        if (endRow < 0 || endRow >= size || endCol < 0 || endCol >= size) continue;
+                    }
 
                     Set<Position> linePositions = new HashSet<>();
+                    linePositions.add(startPos);
                     boolean validLine = true;
-                    for (int i = 0; i < length; i++) {
+
+                    for (int i = 1; i < length; i++) {
                         int r = row + i * dir[0];
                         int c = col + i * dir[1];
-                        Position pos = new Position(r, c);
+                        Position pos = new Position(c, r);
+
                         if (getMarkAt(pos) != mark) {
                             validLine = false;
                             break;
@@ -281,7 +234,22 @@ public class Board implements Cloneable {
                         linePositions.add(pos);
                     }
 
-                    if (validLine) uniqueLines.add(linePositions);
+                    if (!validLine) continue;
+
+                    Position beforePos = new Position(col - dir[1], row - dir[0]);
+                    Position afterPos = new Position(col + length * dir[1], row + length * dir[0]);
+
+                    boolean beforeOpen = isWithinBounds(beforePos) && getMarkAt(beforePos) == Mark.NULL;
+                    boolean afterOpen = isWithinBounds(afterPos) && getMarkAt(afterPos) == Mark.NULL;
+
+                    if (!periodic) {
+                        beforeOpen = !isWithinBounds(beforePos) || beforeOpen;
+                        afterOpen = !isWithinBounds(afterPos) || afterOpen;
+                    }
+
+                    if (beforeOpen && afterOpen) {
+                        uniqueLines.add(linePositions);
+                    }
                 }
             }
         }
@@ -289,46 +257,30 @@ public class Board implements Cloneable {
         return uniqueLines.size();
     }
 
-    public int countUniqueClosedLines(Mark mark, int length) {
-        Set<Set<Position>> uniqueLines = new HashSet<>();
+    public int countPotentialOpenLinesFormed(Position position, Mark mark, int length) {
+        if (getMarkAt(position) != Mark.NULL) return 0;
 
-        for (int row = 0; row < size; row++) {
-            for (int col = 0; col < size; col++) {
-                for (int[] dir : DIRECTIONS) {
-                    int endRow = row + (length - 1) * dir[0];
-                    int endCol = col + (length - 1) * dir[1];
-                    if (endRow < 0 || endRow >= size || endCol < 0 || endCol >= size) continue;
+        placeMarkAt(position, mark);
 
-                    int beforeRow = row - dir[0];
-                    int beforeCol = col - dir[1];
-                    int afterRow = endRow + dir[0];
-                    int afterCol = endCol + dir[1];
+        int lineCount = 0;
+        for (int[] dir : DIRECTIONS) {
+            int forwardCount = countConsecutiveMarks(position, dir[0], dir[1], mark);
+            int backwardCount = countConsecutiveMarks(position, -dir[0], -dir[1], mark);
+            int totalMarks = 1 + forwardCount + backwardCount;
 
-                    boolean startClosed = beforeRow < 0 || beforeRow >= size || beforeCol < 0 || beforeCol >= size
-                            || getMarkAt(beforeRow, beforeCol) == opponentMark;
-                    boolean endClosed = afterRow < 0 || afterRow >= size || afterCol < 0 || afterCol >= size
-                            || getMarkAt(afterRow, afterCol) == opponentMark;
+            if (totalMarks == length) {
+                Position forwardEnd = new Position(position.col() + dir[1] * (forwardCount + 1), position.row() + dir[0] * (forwardCount + 1));
+                Position backwardEnd = new Position(position.col() - dir[1] * (backwardCount + 1), position.row() - dir[0] * (backwardCount + 1));
 
-                    if (!startClosed && !endClosed) continue;
+                boolean forwardOpen = periodic ? getMarkAt(forwardEnd) == Mark.NULL : isWithinBounds(forwardEnd) && getMarkAt(forwardEnd) == Mark.NULL;
+                boolean backwardOpen = periodic ? getMarkAt(backwardEnd) == Mark.NULL : isWithinBounds(backwardEnd) && getMarkAt(backwardEnd) == Mark.NULL;
 
-                    Set<Position> linePositions = new HashSet<>();
-                    boolean validLine = true;
-                    for (int i = 0; i < length; i++) {
-                        int r = row + i * dir[0];
-                        int c = col + i * dir[1];
-                        Position pos = new Position(r, c);
-                        if (getMarkAt(pos) != mark) {
-                            validLine = false;
-                            break;
-                        }
-                        linePositions.add(pos);
-                    }
-                    if (validLine) uniqueLines.add(linePositions);
-                }
+                if (forwardOpen && backwardOpen) lineCount++;
             }
         }
 
-        return uniqueLines.size();
+        placeMarkAt(position, Mark.NULL);
+        return lineCount;
     }
 
     private boolean createsLineWithOpenEnds(Position pos, Mark mark, int length, int dx, int dy) {
@@ -343,41 +295,6 @@ public class Board implements Cloneable {
         boolean openF = isWithinBounds(endF) && sim.getMarkAt(endF) == Mark.NULL;
         boolean openB = isWithinBounds(endB) && sim.getMarkAt(endB) == Mark.NULL;
         return openF && openB;
-    }
-
-    private boolean createsLineWithOneOpenEnd(Position pos, Mark mark, int length, int dx, int dy) {
-        Board sim = this.clone();
-        sim.placeMarkAt(pos, mark);
-
-        int f = sim.countDirection(pos, mark, dx, dy);
-        int b = sim.countDirection(pos, mark, -dx, -dy);
-        if (1 + f + b != length) return false;
-        Position endF = new Position(pos.col() + dy * (f + 1), pos.row() + dx * (f + 1));
-        Position endB = new Position(pos.col() - dy * (b + 1), pos.row() - dx * (b + 1));
-        boolean openF = isWithinBounds(endF) && sim.getMarkAt(endF) == Mark.NULL;
-        boolean openB = isWithinBounds(endB) && sim.getMarkAt(endB) == Mark.NULL;
-        return openF ^ openB;
-    }
-
-    public int countPotentialLinesFormed(Position position, Mark mark, int length) {
-        if (getMarkAt(position) != Mark.NULL) {
-            return 0;
-        }
-        placeMarkAt(position, mark);
-
-        int lineCount = 0;
-        for (int[] dir : DIRECTIONS) {
-            int totalMarks = 1;
-            totalMarks += countConsecutiveMarks(position, dir[0], dir[1], mark);
-            totalMarks += countConsecutiveMarks(position, -dir[0], -dir[1], mark);
-            if (totalMarks == length) {
-                lineCount++;
-            }
-        }
-
-        placeMarkAt(position, Mark.NULL);
-
-        return lineCount;
     }
 
     private int countConsecutiveMarks(Position start, int rowDelta, int colDelta, Mark mark) {

@@ -1,0 +1,37 @@
+package implementation.core.moves;
+
+import fais.zti.oramus.gomoku.Mark;
+import fais.zti.oramus.gomoku.Move;
+import fais.zti.oramus.gomoku.Position;
+import implementation.core.Board;
+
+import java.util.Optional;
+import java.util.Set;
+
+public class FindTwoThreesStrategy implements MoveStrategy {
+
+    @Override
+    public Optional<Move> findMove(Board board, Mark mark) {
+        Set<Position> ourPossibleOpen3 = board.getOpenThreeThreatPositions(mark);
+
+        int ourBestOpen3Counter = 0;
+        Position ourBestOpen3Position = null;
+        if (!ourPossibleOpen3.isEmpty()) {
+            for (Position position : ourPossibleOpen3) {
+                int current = board.countPotentialOpenLinesFormed(position, mark, 3);
+                if (current > ourBestOpen3Counter) {
+                    ourBestOpen3Counter = current;
+                    ourBestOpen3Position = position;
+                }
+            }
+        }
+
+        if(ourBestOpen3Counter >= 2) {
+            System.out.println("End of FindTwoThreesStrategy0\n");
+            return Optional.of(new Move(ourBestOpen3Position, mark));
+        }
+
+        System.out.println("End of FindTwoThreesStrategy\n");
+        return  Optional.empty();
+    }
+}

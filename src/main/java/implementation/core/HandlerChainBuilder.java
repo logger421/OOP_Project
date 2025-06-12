@@ -32,11 +32,6 @@ public class HandlerChainBuilder {
         return chain;
     }
 
-    public HandlerChainBuilder addResignCheck() {
-        steps.add(ResignHandler::new);
-        return this;
-    }
-
     @FunctionalInterface
     private interface HandlerFactory {
         MoveHandler create(MoveHandler next);

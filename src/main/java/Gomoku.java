@@ -4,9 +4,7 @@ import implementation.core.Board;
 import implementation.core.BoardAdapter;
 import implementation.core.HandlerChainBuilder;
 import implementation.core.handlers.MoveHandler;
-import implementation.core.moves.BlockOpponentStrategy;
-import implementation.core.moves.ExtendLineStrategy;
-import implementation.core.moves.WinImmediatelyStrategy;
+import implementation.core.moves.*;
 
 import java.util.Optional;
 import java.util.Set;
@@ -21,8 +19,16 @@ public class Gomoku implements Game {
         this.handlerChain = new HandlerChainBuilder()
                 .addWinnerCheck()
                 .addStrategy(new WinImmediatelyStrategy())
-                .addStrategy(new BlockOpponentStrategy())
-                .addResignCheck()
+                .addStrategy(new ResignWhenTwoFivesPossibleStrategy())
+                .addStrategy(new BlockOnePossibleFiveStrategy())
+                .addStrategy(new ResignWhenTwoOpenFoursPresentStrategy())
+                .addStrategy(new FindOpenFourStrategy())
+                .addStrategy(new ResignWhenTwoOpenFoursPossibleStrategy())
+                .addStrategy(new BlockOnePossibleOpenFourStrategy())
+                .addStrategy(new ResignWhenTwoThreesPresentStrategy())
+                .addStrategy(new FindTwoThreesStrategy())
+                .addStrategy(new ResignWhenTwoThreesPossibleStrategy())
+                .addStrategy(new BlockTwoPossibleThreesStrategy())
                 .addStrategy(new ExtendLineStrategy())
                 .addDefault()
                 .build();

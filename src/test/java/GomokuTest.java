@@ -217,7 +217,7 @@ public class GomokuTest {
         engine.periodicBoundaryConditionsInUse();
         Move nextMove = engine.nextMove(history, Mark.CROSS);
 
-        assertEquals(new Move(new Position(4, 0), Mark.CROSS), nextMove);
+        assertEquals(new Move(new Position(9, 0), Mark.CROSS), nextMove);
     }
 
     // Test find good history
@@ -633,7 +633,7 @@ public class GomokuTest {
         engine.periodicBoundaryConditionsInUse();
         Move next = engine.nextMove(history, Mark.CROSS);
 
-        assertEquals(new Position(4, 1), next.position());
+        assertEquals(new Position(4, 6), next.position());
     }
 
     @Test
@@ -937,6 +937,45 @@ public class GomokuTest {
         assertThrows(ResignException.class, () -> engine.nextMove(history, Mark.CROSS));
     }
 
+    @Test
+    void shouldThrowResignException8() {
+        engine.firstMark(Mark.CROSS);
+        String board =
+                ". . . . . . . . . .\n" +
+                ". . . O . . O . . .\n" +
+                ". . . O . . O . . .\n" +
+                ". O O O . . . O O .\n" +
+                ". . . . . . . . . .\n" +
+                ". . . . . . . . . .\n" +
+                ". . . . . . . . . .\n" +
+                ". X . . X . X . . X\n" +
+                ". X . . . . . . . .\n" +
+                "X . . X . X . . X .";
+
+        history = parseBoardString(board);
+
+        assertThrows(ResignException.class, () -> engine.nextMove(history, Mark.CROSS));
+    }
+
+        @Test
+    void shouldThrowResignException9() {
+        engine.firstMark(Mark.CROSS);
+        String board =
+                ". . . . . . . . . .\n" +
+                ". . . O . . O . . .\n" +
+                ". . . O . . . . . .\n" +
+                ". O O O . . . . . .\n" +
+                ". . . . . . . . . .\n" +
+                ". . . . . . . . . .\n" +
+                ". O . . O . O . . .\n" +
+                ". X . . X . X . . X\n" +
+                ". X . . . . . . . .\n" +
+                "X . . X . X . . X .";
+
+        history = parseBoardString(board);
+
+        assertThrows(ResignException.class, () -> engine.nextMove(history, Mark.CROSS));
+    }
     // Wrong Board State Exception
 
     @Test
