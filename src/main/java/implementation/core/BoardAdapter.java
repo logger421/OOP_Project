@@ -10,6 +10,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import static implementation.core.PositionUtils.MAX_SIZE;
+import static implementation.core.PositionUtils.MIN_SIZE;
+
 public class BoardAdapter {
     private final Set<Move> rawMoves;
     private final Mark currentMark;
@@ -32,7 +35,7 @@ public class BoardAdapter {
 
     private void validateBoardState() throws WrongBoardStateException {
         int size = config.getSize();
-        if (size > BoardConfig.MAX_SIZE || size < BoardConfig.MIN_SIZE) throw new WrongBoardStateException();
+        if (size > MAX_SIZE || size < MIN_SIZE) throw new WrongBoardStateException();
 
         Map<Position, Mark> positionMarkMap = new HashMap<>();
         long countX = 0, countO = 0;

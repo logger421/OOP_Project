@@ -7,6 +7,8 @@ import implementation.core.Board;
 
 import java.util.Optional;
 
+import static implementation.core.PositionUtils.DIRECTIONS;
+
 public class ExtendLineStrategy implements MoveStrategy {
 
     @Override

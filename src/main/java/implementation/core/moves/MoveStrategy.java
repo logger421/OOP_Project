@@ -10,7 +10,6 @@ import java.util.Optional;
 
 public interface MoveStrategy {
     BoardConfig config = BoardConfig.getInstance();
-    int[][] DIRECTIONS = {{1, 0}, {0, 1}, {1, 1}, {1, -1}};
 
     Optional<Move> findMove(Board board, Mark mark) throws ResignException;
 

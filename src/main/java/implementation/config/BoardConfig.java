@@ -4,8 +4,7 @@ import fais.zti.oramus.gomoku.Mark;
 
 public class BoardConfig {
     private static BoardConfig INSTANCE;
-    public static final int MAX_SIZE = 15;
-    public static final int MIN_SIZE = 10;
+
 
     private Mark firstMark;
     private int size = 10;

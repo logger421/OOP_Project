@@ -4,6 +4,8 @@ import fais.zti.oramus.gomoku.Mark;
 import fais.zti.oramus.gomoku.Move;
 import fais.zti.oramus.gomoku.Position;
 import implementation.core.Board;
+import implementation.core.LinesCounter;
+import implementation.core.ThreatPositionsCalculator;
 
 import java.util.Optional;
 import java.util.Set;
@@ -13,13 +15,13 @@ public class BlockOnePossibleOpenFourStrategy implements MoveStrategy {
     @Override
     public Optional<Move> findMove(Board board, Mark mark) {
         Mark opponent = board.getOpponentMark();
-        Set<Position> openFourThreatPositions = board.getOpenFourThreatPositions(opponent);
+        Set<Position> openFourThreatPositions = ThreatPositionsCalculator.getOpenFourThreatPositions(board, opponent);
 
         int openFourCounter = 0;
         Position best = null;
         if (!openFourThreatPositions.isEmpty()) {
             for (Position position : openFourThreatPositions) {
-                int current = board.countPotentialOpenLinesFormed(position, opponent, 4);
+                int current = LinesCounter.countPotentialOpenLinesFormed(board, position, opponent, 4);
                 if (current > openFourCounter) {
                     openFourCounter = current;
                     best = position;
@@ -27,11 +29,11 @@ public class BlockOnePossibleOpenFourStrategy implements MoveStrategy {
             }
         }
 
-        Set<Position> openThreeThreatPositions = board.getOpenThreeThreatPositions(board.getOpponentMark());
+        Set<Position> openThreeThreatPositions = ThreatPositionsCalculator.getOpenThreeThreatPositions(board, opponent);
         int openThreeCounter = 0;
         if (!openThreeThreatPositions.isEmpty()) {
             for (Position position : openThreeThreatPositions) {
-                int current = board.countPotentialOpenLinesFormed(position, board.getOpponentMark(), 3);
+                int current = LinesCounter.countPotentialOpenLinesFormed(board, position, opponent, 3);
                 if (current > openThreeCounter) {
                     openThreeCounter = current;
                 }
